@@ -1,5 +1,5 @@
 .*.swp
 *.o
 *.dep.mk
-./xorshift
+xorshift
 fermat_primalty_test
