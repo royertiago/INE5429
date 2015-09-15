@@ -34,7 +34,7 @@ namespace rng {
 
         // Populate the buffer with random numbers
         int j = 0;
-        for( int i = 4; i < number_of_bytes; i++ ) {
+        for( int i = 4; i < 4 + number_of_bytes; i++ ) {
             buf[i] = random_number % 0x100;
             random_number /= 0x100;
             j++;
