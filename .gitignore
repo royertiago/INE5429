@@ -2,3 +2,4 @@
 *.o
 *.dep.mk
 ./xorshift
+fermat_primalty_test
