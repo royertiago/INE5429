@@ -19,7 +19,16 @@ namespace rng {
 
     template< typename RNG >
     mpz_class gmp_generate( RNG & rng, std::uint32_t number_of_bytes ) {
-        unsigned char * buf = new unsigned char[4 + number_of_bytes];
+        /* The buffer we will write to will be kept as static,
+         * so that sucessive invocations of this method does not have
+         * the memory allocation overhead. */
+        static unsigned char * buf = 0;
+        static unsigned buf_size = 0;
+        if( 4 + number_of_bytes > buf_size ) {
+            delete buf;
+            buf = new unsigned char[4 + number_of_bytes];
+            buf_size = 4 + number_of_bytes;
+        }
 
         // First, write the size, in guaranteed big-endian order
         std::uint32_t size = number_of_bytes;
