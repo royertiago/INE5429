@@ -3,3 +3,4 @@
 *.dep.mk
 xorshift
 fermat_primalty_test
+generate_prime_number
