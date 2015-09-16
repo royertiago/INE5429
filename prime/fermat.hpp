@@ -2,6 +2,7 @@
 #define PRIME_FERMAT_HPP
 
 #include <gmpxx.h>
+#include "math/algo.hpp"
 #include "random/gmp_adapter.hpp"
 
 /* Fermat primality test.
@@ -31,8 +32,7 @@ bool fermat_probably_prime( mpz_class number, RNG& rng, int trials ) {
         witness_candidate += 1;
 
         // Test witness
-        mpz_powm( power.get_mpz_t(), witness_candidate.get_mpz_t(),
-                number_minus_one.get_mpz_t(), number.get_mpz_t() );
+        power = math::pow_mod( witness_candidate, number_minus_one, number );
 
         if( power != 1 )
             /* Failed this trial. By Fermat's little theorem,
