@@ -21,15 +21,14 @@ template< typename RNG >
 bool fermat_probably_prime( mpz_class number, RNG& rng, int trials ) {
     mpz_class power, witness_candidate;
 
-    int size = mpz_sizeinbase( number.get_mpz_t(), 2 );
+    int bytes = (mpz_sizeinbase( number.get_mpz_t(), 2 ) + 7)/8;
     mpz_class number_minus_one = number - 1;
-    mpz_class number_minus_three = number - 3;
 
     while( trials-- ) {
-        // Generate witness candidate in range [2, n-2]
-        witness_candidate = rng::gmp_generate( rng, size );
-        witness_candidate %= number_minus_three;
-        witness_candidate += 2;
+        // Generate witness candidate in range [1, n-1]
+        witness_candidate = rng::gmp_generate( rng, bytes );
+        witness_candidate %= number_minus_one;
+        witness_candidate += 1;
 
         // Test witness
         mpz_powm( power.get_mpz_t(), witness_candidate.get_mpz_t(),
