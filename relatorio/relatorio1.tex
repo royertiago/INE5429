@@ -31,4 +31,33 @@ O trabalho pedia que implementássemos um gerador de números aleatórios
 e um testador probabilístico de primalidade,
 e os usasse para computar uma tabela de números primos com tamanhos arbitrários.
 
+Todo o código está disponível em \verb"https://github.com/royertiago/INE5429".
+Devido à necessidade de se trabalhar com números grandes eficientemente,
+a linguagem escolhida foi C++,
+tanto pela eficiência da linguagem quanto ao suporte da biblioteca GMP.
+
+\section{Geração de números aleatórios}
+
+O gerador escolhido foi o Xorshift,
+implementado em \verb"random/xorshift.hpp".
+O algoritmo aplica sucessivas vezes uma mesma transformação linear
+num vetor de bits.
+Devido ao formato da matriz utilizada,
+esta transformação pode ser implementada muito eficientemente em inteiros de 32 bits,
+ficando sempre da forma
+\begin{verbatim}
+    std::uint32_t t = x ^ (x << a);
+    x = y; y = z; z = w;
+    return w = (w ^ (w >> c)) ^ (t ^ (t >> b));
+\end{verbatim}
+Os valores \verb"x", \verb"y", \verb"z" e \verb"w" fazem parte do estado do gerador.
+Os inteiros \verb"a", \verb"b" e \verb"c" são fixos;
+eles são escolhidos de forma a garantir que o gerador possua período máximo.
+A primeira linha salva uma cópia (alterada) de \verb"x",
+a segunda desloca o estado para a esquerda (faz o \emph{shift})
+e a terceira altera os últimos 32 bits de estado,
+em função dos valores originais de \verb"x" e \verb"w",
+usando apenas ou-exclusivo.
+Por isso o nome \emph{Xorshift}.
+
 \end{document}
