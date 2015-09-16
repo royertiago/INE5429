@@ -1,0 +1,34 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\title{
+    INE5429 --- Segurança em Computação \\
+    Relatório I --- Geração de Números Primos
+}
+\author{
+    Tiago Royer - 12100776
+}
+
+\date{16 de setembro de 2015}
+
+\begin{document}
+
+\maketitle
+
+O objetivo deste trabalho é gerar números primos grandes.
+Números primos possuem sua importância em protocolos de segurança
+porque o problema de encontrar os fatores primos de um número não-primo
+é computacionalmente intratável para números grandes,
+cujos fatores primos possuem milhares de bits.
+Portanto, ao gerar dois números primos grandes $p$ e $q$,
+mesmo que disponibilizemos para o mundo todo o produto $pq$
+podemos confiar que nenhum atacante consegue fatorar este número em tempo hábil.
+
+O trabalho pedia que implementássemos um gerador de números aleatórios
+e um testador probabilístico de primalidade,
+e os usasse para computar uma tabela de números primos com tamanhos arbitrários.
+
+\end{document}
