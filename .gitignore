@@ -7,5 +7,5 @@
 *.o
 *.dep.mk
 xorshift
-fermat_primalty_test
+fermat_primality_test
 generate_prime_number
