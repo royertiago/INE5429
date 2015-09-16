@@ -165,4 +165,29 @@ A função \verb"math::pow_mod" implementa exponenciação modular
 usado quadrado-e-multiplica.
 Ela está disponível no arquivo \verb"math/algo.hpp".
 
+\subsection{Execução e comparação com Miller-Rabin}
+
+O algoritmo de Fermat também possui uma interface em linha de comando,
+no arquivo \verb"fermat_primality_test.cpp".
+Por exemplo, executar \verb"./fermat_primality_test 15 3"
+irá fazer $3$ tentativas de provar que $15$ não é primo.
+A saída é
+\begin{verbatim}
+Number 15 failed Fermat test.
+\end{verbatim}
+Executar \verb"./fermat_primality_test 17 30", por sua vez, retorna
+\begin{verbatim}
+Number 17 passed all 30 trials.
+\end{verbatim}
+
+A função \verb"mpz_probab_prime" implementa o teste de Miller-Rabin.
+O programa de exemplo da GMP \verb"isprime.c" é uma interface para este algoritmo.
+Rodando testes entre os dois programas,
+pude perceber que minha implementação demora 1m58s
+para concluir que o número $2^{19937} - 1$ é provavelmente primo,
+enquanto que a implementação da GMP retorna em apenas 50 segundos
+(ambos os programas rodam 25 tentativas).
+Já a implementação da GMP provou quue $2^{19973} - 1$ não é primo em 3 segundos,
+enquanto que minha implementação tomou 5.
+
 \end{document}
