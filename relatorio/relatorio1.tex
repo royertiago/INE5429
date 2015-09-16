@@ -127,4 +127,42 @@ Com $n = 30$, a chance de um número composto passar no teste
 o que é uma probabilidade bastante aceitável.
 Foi este o $n$ escolhido para concluir primalidade.
 
+\subsection{Implementação}
+
+Este código está no arquivo \verb"prime/fermat.hpp".
+\begin{verbatim}
+template< typename RNG >
+bool fermat_probably_prime( mpz_class number, RNG& rng, int trials ) {
+    mpz_class power, witness_candidate;
+
+    int bytes = (mpz_sizeinbase( number.get_mpz_t(), 2 ) + 7)/8;
+    mpz_class number_minus_one = number - 1;
+
+    while( trials-- ) {
+        // Generate witness candidate in range [1, n-1]
+        witness_candidate = rng::gmp_generate( rng, bytes );
+        witness_candidate %= number_minus_one;
+        witness_candidate += 1;
+
+        // Test witness
+        power = math::pow_mod( witness_candidate, number_minus_one, number );
+
+        if( power != 1 )
+            /* Failed this trial. By Fermat's little theorem,
+             * we are sure this number is not prime. */
+            return false;
+    }
+    // Passed all trials
+    return true;
+}
+\end{verbatim}
+
+A função \verb"rng::gmp_generate" usa \verb"rng" para gerar um número aleatório
+com a quantidade especificada de bytes.
+Ela está disponível no arquivo \verb"random/gmp_adapter.hpp".
+
+A função \verb"math::pow_mod" implementa exponenciação modular
+usado quadrado-e-multiplica.
+Ela está disponível no arquivo \verb"math/algo.hpp".
+
 \end{document}
