@@ -13,7 +13,7 @@ union undefined_behavior {
 int main() {
     rng::xorshift rng;
 
-    // This kludge invokes undefined behavior, but well... it works and its short.
+    // This kludge invokes undefined behavior, but well... it works and it's short.
     undefined_behavior ub;
 
     while( true ) {
