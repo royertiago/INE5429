@@ -3,6 +3,8 @@
 \usepackage[brazil]{babel}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{amsthm}
+\newtheorem{theorem}{Teorema}
 
 \title{
     INE5429 --- Segurança em Computação \\
@@ -93,5 +95,36 @@ temos a saída
 3055551424
 1770253741
 \end{verbatim}
+
+\section{Teste de primalidade}
+
+O teste escolhido foi o de Fermat.
+Este teste é baseado no pequeno teorema de Fermat:
+\begin{theorem}
+    Se $p$ é um número primo e $0 < a < p$, então
+    \begin{equation*}
+        a^{p-1} \equiv 1 (\mod p).
+    \end{equation*}
+\end{theorem}
+A contrapositiva deste teorema é que,
+se a igualdade acima não for satisfeita,
+temos certeza de que o número é composto.
+Neste caso,
+chamamos $a$ de \emph{testemunha} para o fato de que $p$ é composto.
+
+Agora, é possível demonstrar que,
+se existe alguma testemunha,
+então ao menos metade dos números entre $0$ e $p$ servirão de testemunha.
+Portanto, temos um teste simples de primalidade:
+chutamos $n$ valores de $a$ e testamos na equação acima.
+Caso algum deles falhe,
+o número é composto;
+caso todos eles passem,
+a probabilidade de o número ser composto é menor que $2^{-n}$.
+
+Com $n = 30$, a chance de um número composto passar no teste
+é menor que uma em um bilhão,
+o que é uma probabilidade bastante aceitável.
+Foi este o $n$ escolhido para concluir primalidade.
 
 \end{document}
