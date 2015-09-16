@@ -60,4 +60,36 @@ em função dos valores originais de \verb"x" e \verb"w",
 usando apenas ou-exclusivo.
 Por isso o nome \emph{Xorshift}.
 
+\subsection{Execução do gerador}
+
+O arquivo \verb"xorshift.cpp", na raíz do repositório,
+possui uma interface em linha de comando para o gerador de números aleatórios,
+que permite escolher a semente inicial e a quantidade de números gerados.
+(A semente padrão é baseada no tempo atual.)
+
+Executando o comando \verb"./xorshift --x 12346 --y 1478 --z 789 --w 0 --count 20"
+temos a saída
+\begin{verbatim}
+429712185
+458348143
+449052049
+449051975
+1950587035
+2334369840
+1634231841
+2337152953
+952165105
+1644753284
+894933719
+3112971583
+4105161773
+4022965524
+410405136
+3180650047
+2919629628
+2299636233
+3055551424
+1770253741
+\end{verbatim}
+
 \end{document}
