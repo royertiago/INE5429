@@ -3,12 +3,12 @@
 #include <stdio.h>
 
 TEST_CASE( "Trial Division", "[math]" ) {
-    std::vector< std::pair<int, int> > factors15 = {{3, 1}, {5, 1}};
-    std::vector< std::pair<int, int> > factors16 = {{2, 4}};
-    std::vector< std::pair<int, int> > factors17 = {{17, 1}};
-    std::vector< std::pair<int, int> > factors210 = {{2, 1}, {3, 1}, {5, 1}, {7, 1}};
-    std::vector< std::pair<int, int> > factors8051 = {{83, 1}, {97, 1}};
-    std::vector< std::pair<int, int> > factors248832 = {{2, 10}, {3, 5}};
+    math::factor::factor_list<int> factors15 = {{3, 1}, {5, 1}};
+    math::factor::factor_list<int> factors16 = {{2, 4}};
+    math::factor::factor_list<int> factors17 = {{17, 1}};
+    math::factor::factor_list<int> factors210 = {{2, 1}, {3, 1}, {5, 1}, {7, 1}};
+    math::factor::factor_list<int> factors8051 = {{83, 1}, {97, 1}};
+    math::factor::factor_list<int> factors248832 = {{2, 10}, {3, 5}};
 
     CHECK( math::factor::trial_division( 15 ) == factors15 );
     CHECK( math::factor::trial_division( 16 ) == factors16 );
