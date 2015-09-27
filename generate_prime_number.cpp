@@ -4,6 +4,7 @@
  * and the xorshift algorithm for random number generation.
  */
 
+#include <cstdio>
 #include <iostream>
 #include "random/xorshift.hpp"
 #include "prime/fermat.hpp"
@@ -15,7 +16,7 @@ int main( int argc, char ** argv ) {
     }
 
     int digits;
-    sscanf( argv[1], "%d", &digits );
+    std::sscanf( argv[1], "%d", &digits );
 
     rng::xorshift rng;
     int count = 0;
