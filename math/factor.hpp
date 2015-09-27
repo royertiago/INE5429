@@ -1,3 +1,6 @@
+#ifndef MATH_FACTOR_HPP
+#define MATH_FACTOR_HPP
+
 /* Implementation of factorization algorithms.
  */
 #include <vector>
@@ -56,3 +59,5 @@ namespace math { namespace factor {
     }
 
 }} // namespace math::factor
+
+#endif // MATH_FACTOR_HPP
