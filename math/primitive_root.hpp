@@ -47,6 +47,30 @@ namespace math {
         return T(0);
     }
 
+    /* Given a primitive root a modulo a prime p,
+     * this algorithm generates all primitive roots modulo p,
+     * in no specified order.
+     */
+    template< typename T >
+    std::vector< T > all_primitive_roots_modulo_p( T p, T a ) {
+        std::vector< T > primitive_roots = {a};
+        T phi = p-1;
+        for( T m(2); m < p; m++ ) {
+            /* It can be shown that, if a is a primitive root modulo p,
+             * then a^m mod p is another primitive root
+             * if and only if m is coprime with phi(p) == p-1.
+             *
+             * Since a is a primitive root,
+             * every number modulo p will be a^m for some m,
+             * so this algorithm correctly returns every primitive root modulo p.
+             */
+            if( math::gcd( m, phi ) == T(1) )
+                primitive_roots.push_back( math::pow_mod( a, m, p ) );
+        }
+
+        return primitive_roots;
+    }
+
 } // namespace math
 
 #endif // MATH_PRIMITIVE_ROOT_HPP
