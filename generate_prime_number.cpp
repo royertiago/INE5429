@@ -10,13 +10,11 @@
 #include "prime/fermat.hpp"
 
 int main( int argc, char ** argv ) {
-    if( argc != 2 ) {
+    int digits;
+    if( argc != 2 || std::sscanf( argv[1], "%d", &digits ) != 1 ) {
         std::cerr << "Usage: " << argv[0] << " [number of bytes]\n";
         return 1;
     }
-
-    int digits;
-    std::sscanf( argv[1], "%d", &digits );
 
     rng::xorshift rng;
     int count = 0;
