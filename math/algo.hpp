@@ -19,6 +19,20 @@ namespace math {
         }
         return r;
     }
+
+    /* Returns the greatest common divisor of a and b,
+     * using an iterative version of the euclidean algorithm.
+     */
+    template< typename T >
+    T gcd( T a, T b ) {
+        T tmp;
+        while( b != 0 ) {
+            tmp = a % b;
+            a = b;
+            b = tmp;
+        }
+        return a;
+    }
 } // namespace math
 
 #endif // MATH_ALGO_HPP
