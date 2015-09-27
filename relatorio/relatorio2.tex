@@ -1,0 +1,76 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\newtheorem{theorem}{Teorema}
+\theoremstyle{definition}
+\newtheorem{definition}{Definição}
+\newtheorem{example}{Exemplo}
+
+\title{
+    INE5429 --- Segurança em Computação \\
+    Relatório II --- Raízes Primitivas
+}
+\author{
+    Tiago Royer - 12100776
+}
+
+\date{28 de setembro de 2015}
+
+\begin{document}
+
+\maketitle
+
+\section{Definição}
+
+\begin{definition}
+    Dado um primo $p$,
+    um número $a$ é uma \emph{raíz primitiva módulo $p$}
+    se
+    \begin{equation*}
+        \{a^1 \mod p, a^2 \mod p, \dots, a^n \mod p, \dots \} = \{1, 2, \dots, p-1\}.
+    \end{equation*}
+    Isto é, se as potências $a^1$, $a^2$, $a^3$ e assim por diante
+    gerarem todos os números entre $1$ e $p-1$.
+\end{definition}
+
+\begin{example}
+    Seja $p = 11$.
+    O número $10$ não é uma raíz primitiva módulo $11$ pois
+    \begin{align*}
+        10^1 &\equiv 10 & (\mod 11) \\
+        10^2 &\equiv 1 & (\mod 11) \\
+        10^3 &\equiv 10 & (\mod 11) \\
+        ...
+    \end{align*}
+    Após o expoente sendo testado atingir $1$,
+    os números irão se repetir,
+    portanto podemos ``abortar'' o teste.
+
+    O número $5$ também não é:
+    \begin{align*}
+        5^1 &\equiv 5 & (\mod 11) \\
+        5^2 &\equiv 3 & (\mod 11) \\
+        5^3 &\equiv 4 & (\mod 11) \\
+        5^4 &\equiv 9 & (\mod 11) \\
+        5^4 &\equiv 1 & (\mod 11)
+    \end{align*}
+
+    Já o número $2$ é uma raíz primitiva módulo $11$:
+    \begin{align*}
+        2^1 &\equiv 2 & (\mod 11) \\
+        2^2 &\equiv 4 & (\mod 11) \\
+        2^3 &\equiv 8 & (\mod 11) \\
+        2^4 &\equiv 5 & (\mod 11) \\
+        2^5 &\equiv 10 & (\mod 11) \\
+        2^6 &\equiv 9 & (\mod 11) \\
+        2^7 &\equiv 7 & (\mod 11) \\
+        2^8 &\equiv 3 & (\mod 11) \\
+        2^9 &\equiv 6 & (\mod 11) \\
+        2^{10} &\equiv 1 & (\mod 11)
+    \end{align*}
+\end{example}
+
+\end{document}
