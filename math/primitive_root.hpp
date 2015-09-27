@@ -11,6 +11,13 @@ namespace math {
      */
     template< typename T >
     T primitive_root_modulo_p( T p ) {
+        /* 2 is the only number for which 1 is a primitive root.
+         * Since 1 is also the only primitive root modulo 2,
+         * the algorithm below would fail for p == 2
+         * if we did not treat it specially.
+         */
+        if( p == T(2) )
+            return T(1);
 
         T phi = p - 1;
         std::vector<T> exponents;
