@@ -1,4 +1,4 @@
-#include "factor/trial_division.cpp"
+#include "math/factor.hpp"
 #include <catch.hpp>
 #include <stdio.h>
 
