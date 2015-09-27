@@ -7,6 +7,7 @@
 *.o
 *.dep.mk
 xorshift
+factor
 fermat_primality_test
 generate_prime_number
 test/test
