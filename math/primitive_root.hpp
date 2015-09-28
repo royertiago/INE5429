@@ -43,7 +43,7 @@ namespace math {
         next_candidate:; // This label functions as a 'continue' command.
         }
 
-        // No primitive roots found.
+        // No primitive roots found; this will never happen for prime p.
         return T(0);
     }
 
