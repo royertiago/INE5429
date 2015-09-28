@@ -247,6 +247,103 @@ nem Bob saiba o valor $A$.
     que é o número em comum a Alice e Bob.
 \end{example}
 
+\section{Implementação}
+
+O algoritmo está implementado no arquivo \verb"math/primitive_root.hpp".
+
+\begin{verbatim}
+template< typename T >
+T primitive_root_modulo_p( T p ) {
+    /* 2 is the only number for which 1 is a primitive root.
+     * Since 1 is also the only primitive root modulo 2,
+     * the algorithm below would fail for p == 2
+     * if we did not treat it specially.
+     */
+    if( p == T(2) )
+        return T(1);
+
+    T phi = p - 1;
+    std::vector<T> exponents;
+    for( auto pair : math::factor::trial_division( phi ) )
+        exponents.push_back( phi / pair.first );
+    /* It can be shown that a number m is a primitive root modulo p
+     * if and only if, for every factor f of p-1, m^((p-1)/f) != 1 (mod p).
+     * Thus, we need to raise every candidate to (p-1)/f
+     * for every factor f of p-1.
+     * The vector exponents just precompute this list.
+     */
+
+    T power;
+    for( T candidate(2); candidate < p; candidate++ ) {
+        for( const auto & exponent : exponents )
+            if( math::pow_mod( candidate, exponent, p ) == 1 )
+                // The candidate failed the test.
+                goto next_candidate;
+
+        // Found a primitive root!
+        return candidate;
+
+    next_candidate:; // This label functions as a 'continue' command.
+    }
+
+    // No primitive roots found; this will never happen for prime p.
+    return T(0);
+}
+\end{verbatim}
+
+\verb"math::factor::trial_division" retorna os fatores do número;
+nos exemplos que testei,
+esta é a parte mais lenta do algoritmo.
+
+Para gerar todas as raizes primitivas módulo $p$,
+foi criada uma função adicional,
+também em \verb"math/primitive_root.hpp".
+
+\begin{verbatim}
+template< typename T >
+std::vector< T > all_primitive_roots_modulo_p( T p, T a ) {
+    std::vector< T > primitive_roots = {a};
+    T phi = p-1;
+    for( T m(2); m < p; m++ ) {
+        /* It can be shown that, if a is a primitive root modulo p,
+         * then a^m mod p is another primitive root
+         * if and only if m is coprime with phi(p) == p-1.
+         *
+         * Since a is a primitive root,
+         * every number modulo p will be a^m for some m,
+         * so this algorithm correctly returns every primitive root modulo p.
+         */
+        if( math::gcd( m, phi ) == T(1) )
+            primitive_roots.push_back( math::pow_mod( a, m, p ) );
+    }
+
+    return primitive_roots;
+}
+\end{verbatim}
+
+O arquivo \verb"primitive_root.cpp",
+na raiz do repositório,
+provê uma interface para estas duas funções.
+Executar \verb"./primitive_root 41 --all --sorted" produz a saída
+\begin{verbatim}
+6
+7
+11
+12
+13
+15
+17
+19
+22
+24
+26
+28
+29
+30
+34
+35
+\end{verbatim}
+
 \bibliographystyle{plain}
 \bibliography{bibliografia}
 
