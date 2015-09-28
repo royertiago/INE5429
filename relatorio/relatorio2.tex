@@ -183,6 +183,64 @@ e calcular $a^m \bmod p$ é rápido usando exponenciação modular.
     \end{align*}
 \end{example}
 
+\section{Aplicações de raízes primitivas módulo $p$}
+
+Dado um primo $p$ e uma raiz primitiva $a$,
+todos os números $b$ com $1 \leq b \leq p-1$
+podem ser escritos como $a^m$ para algum $m$ entre $1$ e $p-1$.
+Reciprocamente,
+todos os valores de $a^m$ serão distintos para $m$ entre $1$ e $p-1$.
+
+Todas as aplicações de raízes primitivas
+se baseiam no fato de que calcular o logaritmo discreto
+é computacionalmente difícil;
+isto é, para a tarefa de,
+dados $a$, $p$ e $b$,
+encontrar $m$ tal que
+\begin{equation*}
+    a^m \equiv b \pmod p,
+\end{equation*}
+só são conhecidos algoritmos exponenciais.
+
+\subsection{Protocolo de troca de chaves de Diffie-Helman}
+
+Neste protocolo,
+o objetivo é gerar um número $k$ que será comum às duas partes envolvidas
+(que chamaremos de Alice e Bob),
+mas usando apenas um canal inseguro de comunicação.
+
+Sejam $p$ um número primo e $a$ uma raiz primitiva módulo $p$.
+Alice gera um número $A$ e Bob gera um número $B$,
+e enviam os números
+\begin{equation*}
+    a^A \bmod p \quad \text{e} \quad a^B \bmod p
+\end{equation*}
+pelo canal inseguro.
+Mesmo que $a$, $p$, $a^A \bmod p$ e $a^B \bmod p$ sejam descobertos,
+ainda assim é computacionalmente intratável
+obter os valores $A$ e $B$ individualmente.
+
+Então, Alice calcula $(a^B)^A \equiv a^{AB} \pmod p$
+usando seu número $A$,
+e Bob calcula $(a^A)^B \equiv a^{AB} \pmod p$,
+usando seu número $B$.
+Agora,
+Alice e Bob compartilham o número $k = a^{AB}$,
+sem que Alice (ou possíveis intrusos) saibam $B$,
+nem Bob saiba o valor $A$.
+
+\begin{example}
+    Usando $p = 41$ e $a = 6$,
+    do exemplo anterior,
+    podemos escolher, por exemplo, $A = 15$ e $B = 12$.
+    Os números a serem transmitidos pela rede
+    são $3$ e $4$,
+    respectivamente;
+    agora,
+    podemos calcular $3^{20} \equiv 4^{15} \equiv 40 \pmod{41}$,
+    que é o número em comum a Alice e Bob.
+\end{example}
+
 \bibliographystyle{plain}
 \bibliography{bibliografia}
 
