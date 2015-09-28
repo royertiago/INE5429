@@ -147,6 +147,42 @@ basta testar todos os números entre $2$ e $p-1$.
     portanto $6$ é uma raiz primitiva módulo $41$.
 \end{example}
 
+\section{Geração de todas as raízes primitivas}
+
+Se $a$ é uma raiz primitiva módulo $p$,
+então $a^m$ será também raiz primitiva módulo $p$
+se e somente se $m$ e $\phi(p)$ forem coprimos%
+~\cite{PrimitiveRootsStackOverflow}.
+Portanto,
+dada a primeira raiz primitiva módulo $p$,
+basta iterar sobre todos os valores de $m$,
+filtrando os que não são coprimos a $\phi(p)$.
+Testar coprimalidade pode ser feito rapidamente usando o algoritmo de Euclides,
+e calcular $a^m \bmod p$ é rápido usando exponenciação modular.
+
+\begin{example}
+    Dado que $6$ é uma raiz primitiva de $41$,
+    podemos gerar todas as outras:
+    \begin{align*}
+        6^1 &\equiv 6 \pmod{41} \\
+        6^3 &\equiv 11 \pmod{41} \\
+        6^7 &\equiv 29 \pmod{41} \\
+        6^9 &\equiv 19 \pmod{41} \\
+        6^{11} &\equiv 28 \pmod{41} \\
+        6^{13} &\equiv 24 \pmod{41} \\
+        6^{17} &\equiv 26 \pmod{41} \\
+        6^{19} &\equiv 34 \pmod{41} \\
+        6^{21} &\equiv 35 \pmod{41} \\
+        6^{23} &\equiv 30 \pmod{41} \\
+        6^{27} &\equiv 12 \pmod{41} \\
+        6^{29} &\equiv 22 \pmod{41} \\
+        6^{31} &\equiv 13 \pmod{41} \\
+        6^{33} &\equiv 17 \pmod{41} \\
+        6^{37} &\equiv 15 \pmod{41} \\
+        6^{39} &\equiv 7 \pmod{41}
+    \end{align*}
+\end{example}
+
 \bibliographystyle{plain}
 \bibliography{bibliografia}
 
