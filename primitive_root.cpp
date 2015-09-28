@@ -11,6 +11,7 @@ namespace command_line {
 "    Generate all primitive roots modulo p instead of just one.\n"
 "\n"
 "--sort\n"
+"--sorted\n"
 "    Sort the list of primitive roots in ascending order.\n"
 "    Default: no particular order.\n"
 "\n"
@@ -44,7 +45,7 @@ namespace command_line {
                 generate_all = true;
                 continue;
             }
-            if( arg == "--sort" ) {
+            if( arg == "--sort" || arg == "--sorted" ) {
                 sort = true;
                 continue;
             }
