@@ -27,7 +27,7 @@
 
 \begin{definition}
     Dado um primo $p$,
-    um número $a$ é uma \emph{raíz primitiva módulo $p$}
+    um número $a$ é uma \emph{raiz primitiva módulo $p$}
     se
     \begin{equation*}
         \{a^1 \mod p, a^2 \mod p, \dots, a^n \mod p, \dots \} = \{1, 2, \dots, p-1\}.
@@ -38,7 +38,7 @@
 
 \begin{example}
     Seja $p = 11$.
-    O número $10$ não é uma raíz primitiva módulo $11$ pois
+    O número $10$ não é uma raiz primitiva módulo $11$ pois
     \begin{align*}
         10^1 &\equiv 10 \mod 11 \\
         10^2 &\equiv 1 \mod 11 \\
@@ -58,7 +58,7 @@
         5^4 &\equiv 1 \mod 11
     \end{align*}
 
-    Já o número $2$ é uma raíz primitiva módulo $11$:
+    Já o número $2$ é uma raiz primitiva módulo $11$:
     \begin{align*}
         2^1 &\equiv 2 \mod 11 \\
         2^2 &\equiv 4 \mod 11 \\
@@ -95,7 +95,7 @@ se $p$ é primo, $\phi(p) = p-1$.
 
 Este teorema nos dá o seguinte algoritmo
 (extraído de \cite{PrimitiveRootsStackOverflow})
-para determinar se $a$ é uma raíz primitiva módulo $p$.
+para determinar se $a$ é uma raiz primitiva módulo $p$.
 
 \begin{enumerate}
     \item Fatore $p-1$ nos primos $p_1, p_2, \ldots, p_k$.
@@ -103,9 +103,9 @@ para determinar se $a$ é uma raíz primitiva módulo $p$.
         \begin{equation*}
             a^{(p-1)/p_i} \equiv 1 \mod p
         \end{equation*}
-        Se sim, pare: $a$ não é uma raíz primitiva módulo $p$.
+        Se sim, pare: $a$ não é uma raiz primitiva módulo $p$.
     \item Se $a$ passar em todos os testes,
-        $a$ é uma raíz primitiva módulo $p$.
+        $a$ é uma raiz primitiva módulo $p$.
 \end{enumerate}
 
 Observe que não precisamos calcular $a^d \mod p$
@@ -115,24 +115,24 @@ portanto caso $a^d \equiv 1 \mod p$ para algum divisor $d$,
 este $d$ divide algum dos números na forma $(p-1)/p_i$ testados no algoritmo,
 portanto $a$ será ``pego'' ao testar $(p-1)/p_i$.
 
-Para encontrar uma raíz primitiva módulo $p$,
+Para encontrar uma raiz primitiva módulo $p$,
 então,
 basta testar todos os números entre $2$ e $p-1$.
 
 \begin{example}
-    Vamos encontrar uma raíz primitiva módulo $41$.
+    Vamos encontrar uma raiz primitiva módulo $41$.
     $\phi(41) = 40 = 2^3*5$,
     portanto precisamos testar as potências $40/2 = 20$ e $40/5 = 8$.
 
     Testando com $a = 2$, temos $a^{20} \equiv 1 \mod 41$,
-    portanto $2$ não é uma raíz primitiva módulo $41$.
+    portanto $2$ não é uma raiz primitiva módulo $41$.
 
     Testando com $a = 3$, temos $a^{30} \equiv 40 \mod 41$,
     mas $a^{16} \equiv 1 \mod 41$,
-    portanto $3$ também não é uma raíz primitiva módulo $41$.
+    portanto $3$ também não é uma raiz primitiva módulo $41$.
 
     Podemos ignorar o caso $a = 4 = 2^2$,
-    pois, se $4$ fosse uma raíz primitiva módulo $41$,
+    pois, se $4$ fosse uma raiz primitiva módulo $41$,
     $2$ também o seria.
     (Podemos, de fato, ignorar todas as potências perfeitas;
     entretanto,
@@ -140,11 +140,11 @@ basta testar todos os números entre $2$ e $p-1$.
     não há por que testar explicitamente contra elas na execução do algoritmo.)
 
     Testando com $a = 5$, temos $5^{20} \equiv 1 \mod 41$,
-    portanto $5$ também não é raíz primitiva módulo $41$.
+    portanto $5$ também não é raiz primitiva módulo $41$.
 
     Finalmente, com $a = 6$, temos $6^{20} \equiv 40 \mod 41$
     e $6^8 \equiv 10 \mod 41$,
-    portanto $6$ é uma raíz primitiva módulo $41$.
+    portanto $6$ é uma raiz primitiva módulo $41$.
 \end{example}
 
 \bibliographystyle{plain}
