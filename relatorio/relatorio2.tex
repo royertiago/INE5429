@@ -73,4 +73,81 @@
     \end{align*}
 \end{example}
 
+\section{Geração de raízes primitiva módulo $p$}
+
+Conforme o exemplo anterior,
+assim que a sequência
+\begin{equation*}
+    a^1, a^2, a^3 \ldots
+\end{equation*}
+atingir o valor $1$, módulo $p$,
+a sequência começa a se repetir.
+O primeiro $n$ para o qual $a^n \equiv 1 \mod p$
+é chamado de \emph{ordem de $a$ módulo $p$}.
+Temos o seguinte teorema.
+
+\begin{theorem}
+    A ordem de qualquer número $a$ módulo $p$ divide $\phi(p)$.
+\end{theorem}
+
+$\phi$ é a função totiente de Euler;
+se $p$ é primo, $\phi(p) = p-1$.
+
+Este teorema nos dá o seguinte algoritmo
+(extraído de \cite{PrimitiveRootsStackOverflow})
+para determinar se $a$ é uma raíz primitiva módulo $p$.
+
+\begin{enumerate}
+    \item Fatore $p-1$ nos primos $p_1, p_2, \ldots, p_k$.
+    \item Teste, para cada $i \leq k$, se
+        \begin{equation*}
+            a^{(p-1)/p_i} \equiv 1 \mod p
+        \end{equation*}
+        Se sim, pare: $a$ não é uma raíz primitiva módulo $p$.
+    \item Se $a$ passar em todos os testes,
+        $a$ é uma raíz primitiva módulo $p$.
+\end{enumerate}
+
+Observe que não precisamos calcular $a^d \mod p$
+para todos os divisores de $\phi(p)$;
+todos os divisores de $\phi(p)$ terão os mesmos fatores primos de $\phi(p)$,
+portanto caso $a^d \equiv 1 \mod p$ para algum divisor $d$,
+este $d$ divide algum dos números na forma $(p-1)/p_i$ testados no algoritmo,
+portanto $a$ será ``pego'' ao testar $(p-1)/p_i$.
+
+Para encontrar uma raíz primitiva módulo $p$,
+então,
+basta testar todos os números entre $2$ e $p-1$.
+
+\begin{example}
+    Vamos encontrar uma raíz primitiva módulo $41$.
+    $\phi(41) = 40 = 2^3*5$,
+    portanto precisamos testar as potências $40/2 = 20$ e $40/5 = 8$.
+
+    Testando com $a = 2$, temos $a^{20} \equiv 1 \mod 41$,
+    portanto $2$ não é uma raíz primitiva módulo $41$.
+
+    Testando com $a = 3$, temos $a^{30} \equiv 40 \mod 41$,
+    mas $a^{16} \equiv 1 \mod 41$,
+    portanto $3$ também não é uma raíz primitiva módulo $41$.
+
+    Podemos ignorar o caso $a = 4 = 2^2$,
+    pois, se $4$ fosse uma raíz primitiva módulo $41$,
+    $2$ também o seria.
+    (Podemos, de fato, ignorar todas as potências perfeitas;
+    entretanto,
+    como potências perfeitas são raras,
+    não há por que testar explicitamente contra elas na execução do algoritmo.)
+
+    Testando com $a = 5$, temos $5^{20} \equiv 1 \mod 41$,
+    portanto $5$ também não é raíz primitiva módulo $41$.
+
+    Finalmente, com $a = 6$, temos $6^{20} \equiv 40 \mod 41$
+    e $6^8 \equiv 10 \mod 41$,
+    portanto $6$ é uma raíz primitiva módulo $41$.
+\end{example}
+
+\bibliographystyle{plain}
+\bibliography{bibliografia}
+
 \end{document}
