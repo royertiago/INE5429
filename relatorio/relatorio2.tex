@@ -247,6 +247,57 @@ nem Bob saiba o valor $A$.
     que é o número em comum a Alice e Bob.
 \end{example}
 
+\subsection{Assinatura de Schnorr}
+
+Fixe um primo $p$ e uma raiz primitiva $a$ módulo $p$;
+além disso, construa uma função de hash criptograficamente segura $H$
+que mapeia strings de $\{0, 1\}^*$ em $\{1, 2, \ldots, p-1\}$.
+$a$, $p$ e $H$ são públicos.
+
+Escolha uma chave privada $x$,
+que será usada para assinar documentos.
+A chave pública,
+usada para verificação,
+é $y = a^x \pmod p$.
+Recuperar a chave privada a partir da chave pública
+requer resolver uma instância do logaritmo discreto,
+portanto é seguro publicar esta chave.
+
+Para assinar uma mensagem $M$,
+escolha um valor $k$ aleatório entre $0$ e $p-1$,
+calcule o valor $a^k \pmod p$,
+concatene à mensagem e calcule seu hash;
+isto é,
+calcule
+\begin{equation*}
+    e = H( M \cdot a^k ).
+\end{equation*}
+Além disso,
+calcule o valor
+\begin{equation*}
+    s = k - xe.
+\end{equation*}
+O par $(e, s)$ é a assinatura de $M$.
+Note que é seguro publicar $s$,
+pois nem $k$ nem $x$ são conhecidos.
+
+Para verificar a assinatura,
+primeiro calcule o valor $r = a^s y^e \pmod p$.
+$a$ é a raiz primitiva de $p$, que é publica,
+e $y$ é a chave pública correspondente à chave privada usada na assinatura;
+$s$ e $e$ estão na assinatura,
+portanto é possível calcular $r$ usando apenas informação pública.
+Agora,
+\begin{equation*}
+    r = a^s y^e = a^{k - xe} (a^x)^e = a^{k - xe + xe} = a^k,
+\end{equation*}
+portanto $M \cdot r = M \cdot a^k$.
+Então,
+sem ter acesso a $k$ nem a $x$,
+podemos calcular novamente o valor $e = H(M \cdot r)$;
+caso este valor ``bata'' com o valor $e$ da assinatura,
+sabemos que esta assinatura é legítima.
+
 \section{Implementação}
 
 O algoritmo está implementado no arquivo \verb"math/primitive_root.hpp".
