@@ -344,6 +344,58 @@ Executar \verb"./primitive_root 41 --all --sorted" produz a saída
 35
 \end{verbatim}
 
+\section{Exemplo com um número primo grande}
+
+Em meus experimentos,
+o gargalo do algoritmo sempre foi fatorar $p-1$,
+pelo fato de eu ter usado um algoritmo de força-bruta para fatoração,
+e as menores raizes primitivas usualmente serem pequenas.
+Então,
+sempre que $p-1$ possuía primos grandes em sua fatoração prima,
+o algoritmo demorava muito para dar resposta;
+assim,
+eu dificilmente conseguia encontrar raizes primitivas
+para primos maiores que 100 bits.
+
+O número $x_1 = 11303738269837677481$ (de $64$ bits), por exemplo,
+pode ser fatorado como
+\begin{equation*}
+    x_1 - 1 = 2^3 * 3 * 5 * 1093 * 88327 * 975724489.
+\end{equation*}
+Portanto, foi rápido descobrir que $29$ é a menor raiz primitiva módulo $x_1$.
+
+O número $x_2 = 1264825514542894451023892177313319643$, de $120$ bits,
+pode ser fatorado como
+\begin{equation*}
+    x_2 - 1 = 2 * 47 * 5167 * 101693 * 426707 * 11015897 * 5447830781507
+\end{equation*}
+em pouco menos de $1$ segundo,
+portanto também é rápido descobrir que $2$ é a menor raiz primitiva módulo $x_2$.
+
+O número $x_3 = 152598503884976472195054780945796957$, de 117 bits,
+é fatorado como
+\begin{equation*}
+    x_3 - 1 = 2^2 * 3 * 13 * 19 * 631 * 1667 * 29173 * 87872329 * 19092987492731
+\end{equation*}
+em cerca de $7$ segundos,
+que é o tempo necessário para descobrir que $2$ também é uma raiz primitiva módulo $x_3$.
+
+Entretanto, a presença de dois primos grandes na fatoração de $\phi(p)$
+pode atrasar bastante o algoritmo,
+mesmo que o número seja pequeno;
+por exemplo,
+para o número $x_4 = 9660584902689428321$,
+de apenas $64$ bits,
+foram necessários $13$ segundos para fatorar
+\begin{equation*}
+    x_4 - 1 = 2^5 * 5 * 142043137 * 425072671,
+\end{equation*}
+que é o mesmo tempo necessário para descobrir que $3$ é raiz primitiva módulo $x_4$.
+(Note que o segundo maior primo na fatoração tem $28$ bits,
+que é o maior valor dentre os quatro primos usados como exemplo.)
+
+Os testes foram realizados num Intel Core i5, 2.3GHz.
+
 \bibliographystyle{plain}
 \bibliography{bibliografia}
 
