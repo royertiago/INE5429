@@ -5,6 +5,7 @@
  */
 #include <vector>
 #include <utility>
+#include "math/prime_list/list.h"
 
 namespace math { namespace factor {
     /* Every function of this namespace returns the list of factors
@@ -31,17 +32,23 @@ namespace math { namespace factor {
     factor_list<T> trial_division( T n ) {
         factor_list<T> factors;
 
-        // Try dividing by two first
-        if( n % T(2) == 0 ) {
-            factors.push_back( {T(2), 0} );
-            while( n % T(2) == 0 ) {
-                n >>= 1;
-                factors.back().second++;
+        // Try dividing by the precomputed primes first
+        for( int k = 0; k < prime_list::size; k++ ) {
+            int divisor = prime_list::p[k];
+            if( divisor * divisor > n )
+                break;
+
+            if( n % divisor == 0 ) {
+                factors.push_back( {T(divisor), 0} );
+                while( n % divisor == 0 ) {
+                    factors.back().second++;
+                    n /= divisor;
+                }
             }
         }
 
-        // Now, try every odd number
-        for( T divisor(3); divisor * divisor <= n; divisor += 2 ) {
+        // Next, iterate through every odd number after the last prime
+        for( T divisor(prime_list::last + 2); divisor * divisor <= n; divisor += 2 ) {
             if( n % divisor == 0 ) {
                 factors.push_back( {divisor, 0} );
                 while( n % divisor == 0 ) {
