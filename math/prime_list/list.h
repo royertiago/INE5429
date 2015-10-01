@@ -18,7 +18,7 @@ namespace prime_list {
      * p[0] == 2,
      * p[1] == 3, etc.
      */
-    extern const int * const p;
+    extern const int p[size];
 
     // Last prime in the list.
     extern const int last;
