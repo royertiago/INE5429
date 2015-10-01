@@ -11,7 +11,7 @@
 namespace math {
 namespace prime_list {
     // Size of the list.
-    constexpr int size = 1 << 13;
+    constexpr int size = 1 << 20;
 
     /* The actual list.
      * For example,
