@@ -8,9 +8,11 @@
 .*.swp
 *.o
 *.dep.mk
+math/prime_list/list.cpp
 xorshift
 factor
 fermat_primality_test
 generate_prime_number
 primitive_root
+math/prime_list/generate_list
 test/test
