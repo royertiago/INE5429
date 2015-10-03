@@ -11,10 +11,10 @@
 #include "random/xorshift.hpp"
 
 namespace math { namespace factor {
-    /* Every function of this namespace returns the list of factors
-     * of the given number.
-     * More precisely,
-     * a list of factors is a list of pairs (p_i, alpha_i)
+    /* This is the data type returned by the main function of this module,
+     * "factor".
+     *
+     * A list of factors is a list of pairs (p_i, alpha_i)
      * such that every p_i is a prime number, p_i < p_{i+1}
      * and the product of all p_i^alpha_i equals n.
      *
@@ -27,6 +27,14 @@ namespace math { namespace factor {
      */
     template< typename T >
     using factor_list = std::vector< std::pair<T, int> >;
+
+    /* Returns the factors of the number n.
+     * This function coordinates the efforts of the functions below;
+     * unless you want to fine-tune the algorithm,
+     * this is the only function you will ever need to call.
+     */
+    template< typename T >
+    factor_list<T> factor( T n );
 
     /* Attempt to factor n using every odd number as a candidate.
      * This algorithm is almost as slow as brute-force.
@@ -142,6 +150,12 @@ namespace math { namespace factor {
         }
 
         return factors;
+    }
+
+    // Implementation of factor, using Pollard's rho algorithm directly
+    template< typename T >
+    factor_list<T> factor( T n ) {
+        return pollard_rho( n );
     }
 
 }} // namespace math::factor
