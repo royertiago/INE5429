@@ -7,7 +7,7 @@
 #include <cstdio>
 #include <iostream>
 #include "random/xorshift.hpp"
-#include "prime/fermat.hpp"
+#include "math/primality.hpp"
 
 int main( int argc, char ** argv ) {
     int digits;

@@ -7,7 +7,7 @@
 #include <utility>
 #include "math/algo.hpp"
 #include "math/prime_list/list.h"
-#include "prime/fermat.hpp"
+#include "math/primality.hpp"
 #include "random/xorshift.hpp"
 
 namespace math { namespace factor {
