@@ -1,9 +1,12 @@
-#ifndef PRIME_FERMAT_HPP
-#define PRIME_FERMAT_HPP
+#ifndef MATH_PRIMALITY_HPP
+#define MATH_PRIMALITY_HPP
 
 #include <gmpxx.h>
 #include "math/algo.hpp"
 #include "random/gmp_adapter.hpp"
+
+namespace math {
+namespace primality {
 
 /* Fermat primality test.
  * Performs the selected number of trials,
@@ -14,12 +17,12 @@
  * that will pass the Fermat test.
  */
 template< typename RNG >
-bool fermat_probably_prime( mpz_class number, RNG& rng, int trials );
+bool fermat( mpz_class number, RNG& rng, int trials );
 
 // Implementation
 
 template< typename RNG >
-bool fermat_probably_prime( mpz_class number, RNG& rng, int trials ) {
+bool fermat( mpz_class number, RNG& rng, int trials ) {
     mpz_class power, witness_candidate;
 
     int bytes = (mpz_sizeinbase( number.get_mpz_t(), 2 ) + 7)/8;
@@ -43,4 +46,6 @@ bool fermat_probably_prime( mpz_class number, RNG& rng, int trials ) {
     return true;
 }
 
-#endif // PRIME_FERMAT_HPP
+}} // namespace math::primality
+
+#endif // MATH_PRIMALITY_HPP

@@ -135,7 +135,7 @@ Foi este o $n$ escolhido para concluir primalidade.
 Este código está no arquivo \verb"math/primality.hpp".
 \begin{verbatim}
 template< typename RNG >
-bool fermat_probably_prime( mpz_class number, RNG& rng, int trials ) {
+bool math::primality::fermat( mpz_class number, RNG& rng, int trials ) {
     mpz_class power, witness_candidate;
 
     int bytes = (mpz_sizeinbase( number.get_mpz_t(), 2 ) + 7)/8;

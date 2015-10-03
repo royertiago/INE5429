@@ -83,7 +83,7 @@ namespace math { namespace factor {
         factor_list<T> factors;
         rng::xorshift xorshift; // To detect primality
 
-        if( fermat_probably_prime( n, xorshift, 30 ) ) {
+        if( math::primality::fermat( n, xorshift, 30 ) ) {
             factors.push_back( {n, 1} );
             return factors;
         }
@@ -116,7 +116,7 @@ namespace math { namespace factor {
                 x_i %= n;
                 x_l_i %= n;
 
-                if( fermat_probably_prime( n, xorshift, 30 ) ) {
+                if( math::primality::fermat( n, xorshift, 30 ) ) {
                     // No more factoring to do.
                     factors.push_back( {n, 1} );
                     return factors;

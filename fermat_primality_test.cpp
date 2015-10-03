@@ -15,7 +15,7 @@ int main( int argc, char ** argv ) {
     sscanf( argv[2], "%d", &trials );
 
     rng::xorshift rng;
-    if( fermat_probably_prime( number, rng, trials ) )
+    if( math::primality::fermat( number, rng, trials ) )
         std::cout << "Number " << number << " passed all " << trials << " trials.\n";
     else
         std::cout << "Number " << number << " failed Fermat test.\n";

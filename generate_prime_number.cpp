@@ -26,7 +26,7 @@ int main( int argc, char ** argv ) {
         count++;
         std::cout << "Trying " << number << '\n';
     }
-    while( !fermat_probably_prime( number, rng, 30 ) );
+    while( !math::primality::fermat( number, rng, 30 ) );
 
     std::cout << "Found prime number " << number
         << " after " << count << " trials.\n";
