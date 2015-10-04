@@ -57,31 +57,40 @@ namespace math { namespace factor {
     template< typename T >
     factor_list<T> trial_division( T & n, int iterations = math::prime_list::size );
 
-    /* Default function used by Pollard's Rho algorithm.
+    /* Default function for Pollard's Rho algorithm.
+     * Objects of this class are functors that map n to n*n+a,
+     * in which 'a' is a user-defined integer value.
+     * (Knuth advises against using a == 0 or a == -2.)
      */
     template< typename T >
-    T pollard_rho_default_function( T n ) {
-        return n * n + 1;
-    }
+    struct pollard_rho_quadratic_function;
 
     /* Pollard's Rho algorithm,
      * with Brent's cycle detection algorithm.
      *
-     * The random number generator is used to choose where to start the algorithm
-     * and to test primality in intermediate steps.
+     * The random number generator is used to test primality
+     * in intermediate steps, to stop the algorithm
+     * when the remainder part of n we are trying to factor is prime.
+     * However, no testing is done on the returned factors;
+     * there is a small probability that they are not primes.
      */
-    template< typename T, typename RNG = rng::xorshift, typename F = T(T) >
+    template<
+        typename T,
+        typename RNG = rng::xorshift,
+        typename F = pollard_rho_quadratic_function<T>
+    >
     factor_list<T> pollard_rho(
-        T n,
+        T n, // Number to be factored
+        T x0, // Starting point
         RNG rng = rng::xorshift(),
-        F f = pollard_rho_default_function<T>
+        F f = pollard_rho_quadratic_function<T>(1)
     );
 
 // Implementation
 
     template< typename T, typename RNG >
     factor_list<T> factor( T n, RNG rng ) {
-        return pollard_rho( n, rng );
+        return pollard_rho( n, T(rng()), rng );
     }
 
     template< typename T >
@@ -124,8 +133,20 @@ namespace math { namespace factor {
         return factors;
     }
 
+    template< typename T >
+    struct pollard_rho_quadratic_function {
+        int delta;
+        pollard_rho_quadratic_function( int delta ) :
+            delta( delta )
+        {}
+
+        T operator()( T n ) {
+            return n * n + delta;
+        }
+    };
+
     template< typename T, typename RNG, typename F >
-    factor_list<T> pollard_rho( T n, RNG rng, F f ) {
+    factor_list<T> pollard_rho( T n, T x0, RNG rng, F f ) {
         factor_list<T> factors;
 
         if( math::primality::fermat( n, rng, 30 ) ) {
@@ -136,7 +157,7 @@ namespace math { namespace factor {
         T i(1); // Current iteration index.
         T l_i(0); // Value l(i) - 1, the index against which we are comparing to.
 
-        T x_l_i( rng() % n ); // X_{l(i) - 1}, the value against which
+        T x_l_i = x0; // X_{l(i) - 1}, the value against which
         // we will compare to.
 
         T x_i = f(x_l_i) % n; // X_i; Current value of iteration
