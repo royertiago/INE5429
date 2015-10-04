@@ -126,4 +126,18 @@ TEST_CASE( "Utilities" ) {
         math::factor::add_factor( list, 5 );
         CHECK( list == list8 );
     }
+
+    SECTION( "merge_facor" ) {
+        using l = math::factor::factor_list<int>;
+        using math::factor::merge_lists;
+        CHECK(( merge_lists(l{}, l{}) == l{} ));
+        CHECK(( merge_lists(l{{2, 1}}, l{{2, 3}}) == l{{2, 4}} ));
+        CHECK(( merge_lists(l{{2, 3}}, l{{3, 2}}) == l{{2, 3}, {3, 2}} ));
+        CHECK(( merge_lists(l{{3, 2}}, l{{2, 3}}) == l{{2, 3}, {3, 2}} ));
+        CHECK(( merge_lists(l{{3, 2}}, l{{2, 3}, {5, 1}}) == l{{2, 3}, {3, 2}, {5, 1}} ));
+        CHECK(( merge_lists(l{{2, 3}, {5, 1}}, l{{3, 2}}) == l{{2, 3}, {3, 2}, {5, 1}} ));
+        CHECK(( merge_lists(l{{2, 3}, {5, 1}, {13, 1}},
+                           l{{3, 2}, {5, 3}, {11, 1}, {19, 1}})
+                        == l{{2, 3}, {3, 2}, {5, 4}, {11, 1}, {13, 1}, {19, 1}} ));
+    }
 }

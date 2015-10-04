@@ -94,6 +94,13 @@ namespace math { namespace factor {
     template< typename T >
     void add_factor( factor_list<T> &, T new_factor );
 
+    /* Utility function.
+     * Merges the two factor lists.
+     * The lists are assumed to be ordered.
+     */
+    template< typename T >
+    factor_list<T> merge_lists( factor_list<T>, factor_list<T> );
+
 // Implementation
 
     template< typename T, typename RNG >
@@ -242,6 +249,40 @@ namespace math { namespace factor {
          * so we must add it to the beginning.
          */
         list.insert( begin, {new_factor, 1} );
+    }
+
+    template< typename T >
+    factor_list<T> merge_lists( factor_list<T> left, factor_list<T> right ) {
+        factor_list<T> ret;
+        auto left_ptr = left.begin();
+        auto right_ptr = right.begin();
+        while( true ) {
+            /* If either of the pointers had reached the end of their
+             * respective vectors,
+             * add all remaining elements of the other vertors to ret
+             * and return it.
+             */
+            if( left_ptr == left.end() ) {
+                ret.insert( ret.end(), right_ptr, right.end() );
+                return ret;
+            }
+            if( right_ptr == right.end() ) {
+                ret.insert( ret.end(), left_ptr, left.end() );
+                return ret;
+            }
+
+            // Neither left_ptr == left.end() nor right_ptr == right.end().
+            if( left_ptr->first < right_ptr->first )
+                ret.push_back( *left_ptr++ );
+            else if( left_ptr->first > right_ptr->first )
+                ret.push_back( *right_ptr++ );
+            else {
+                ret.push_back( {left_ptr->first, left_ptr->second + right_ptr->second} );
+                ++left_ptr;
+                ++right_ptr;
+            }
+        }
+        // The return occours inside the loop.
     }
 
 }} // namespace math::factor
