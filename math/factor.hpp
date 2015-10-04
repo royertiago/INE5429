@@ -57,7 +57,32 @@ namespace math { namespace factor {
     template< typename T >
     factor_list<T> trial_division( T & n, int iterations = math::prime_list::size );
 
+    /* Default function used by Pollard's Rho algorithm.
+     */
+    template< typename T >
+    T pollard_rho_default_function( T n ) {
+        return n * n + 1;
+    }
+
+    /* Pollard's Rho algorithm,
+     * with Brent's cycle detection algorithm.
+     *
+     * The random number generator is used to choose where to start the algorithm
+     * and to test primality in intermediate steps.
+     */
+    template< typename T, typename RNG = rng::xorshift, typename F = T(T) >
+    factor_list<T> pollard_rho(
+        T n,
+        RNG rng = rng::xorshift(),
+        F f = pollard_rho_default_function<T>
+    );
+
 // Implementation
+
+    template< typename T, typename RNG >
+    factor_list<T> factor( T n, RNG rng ) {
+        return pollard_rho( n, rng );
+    }
 
     template< typename T >
     factor_list<T> trial_division( T & n, int iterations = math::prime_list::size ) {
@@ -99,25 +124,8 @@ namespace math { namespace factor {
         return factors;
     }
 
-    /* Default function used by Pollard's Rho algorithm.
-     */
-    template< typename T >
-    T pollard_rho_default_function( T n ) {
-        return n * n + 1;
-    }
-
-    /* Pollard's Rho algorithm,
-     * with Brent's cycle detection algorithm.
-     *
-     * The random number generator is used to choose where to start the algorithm
-     * and to test primality in intermediate steps.
-     */
-    template< typename T, typename RNG = rng::xorshift, typename F = T(T) >
-    factor_list<T> pollard_rho(
-        T n,
-        RNG rng = rng::xorshift(),
-        F f = pollard_rho_default_function<T>
-    ) {
+    template< typename T, typename RNG, typename F >
+    factor_list<T> pollard_rho( T n, RNG rng, F f ) {
         factor_list<T> factors;
 
         if( math::primality::fermat( n, rng, 30 ) ) {
@@ -179,12 +187,6 @@ namespace math { namespace factor {
         }
 
         return factors;
-    }
-
-    // Implementation of factor, using Pollard's rho algorithm directly
-    template< typename T, typename RNG >
-    factor_list<T> factor( T n, RNG rng ) {
-        return pollard_rho( n, rng );
     }
 
 }} // namespace math::factor
