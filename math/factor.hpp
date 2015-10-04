@@ -43,43 +43,59 @@ namespace math { namespace factor {
     template< typename T, typename RNG = rng::xorshift >
     factor_list<T> factor( T n, RNG rng = rng::xorshift() );
 
-    /* Attempt to factor n using every odd number as a candidate.
-     * This algorithm is almost as slow as brute-force.
+// Specialized functions
+
+    /* Try to divide the given number by small primes first.
+     * The number n is divided by any factors found.
+     * Returns an ordered list of factors,
+     * which are guaranteed to be prime.
+     *
+     * 'iterations' is the number of small primes the algorithm will use.
+     * This algorithm uses the precomputed prime list in math::prime_list,
+     * so it assumes that 'iterations' is at most math::prime_list::size.
      */
     template< typename T >
-    factor_list<T> trial_division( T n ) {
+    factor_list<T> trial_division( T & n, int iterations = math::prime_list::size );
+
+// Implementation
+
+    template< typename T >
+    factor_list<T> trial_division( T & n, int iterations = math::prime_list::size ) {
         factor_list<T> factors;
 
-        // Try dividing by the precomputed primes first
-        for( int k = 0; k < prime_list::size; k++ ) {
+        for( int k = 0; k < iterations; k++ ) {
             int divisor = prime_list::p[k];
-            if( divisor * divisor > n )
-                break;
 
             if( n % divisor == 0 ) {
+                /* Found a prime factor.
+                 * This algorithm will never go back to the current divisor again,
+                 * so we must try to divide 'n' by 'divisor'
+                 * as many times as possible.
+                 */
                 factors.push_back( {T(divisor), 0} );
                 while( n % divisor == 0 ) {
                     factors.back().second++;
                     n /= divisor;
                 }
             }
-        }
 
-        // Next, iterate through every odd number after the last prime
-        for( T divisor(prime_list::last + 2); divisor * divisor <= n; divisor += 2 ) {
-            if( n % divisor == 0 ) {
-                factors.push_back( {divisor, 0} );
-                while( n % divisor == 0 ) {
-                    factors.back().second++;
-                    n /= divisor;
+            if( divisor * divisor > n ) {
+                /* We fully factored the number.
+                 *
+                 * If n is different than 1, then it is guaranteed to be prime;
+                 * we will add it to the factor list and update it accordingly
+                 * (remember n is taken by reference).
+                 *
+                 * n might become 1 due to the loop above,
+                 * which happens in the case that n == p * p.
+                 */
+                if( n != T(1) ) {
+                    factors.push_back( {n, 1} );
+                    n = T(1);
                 }
+                break;
             }
         }
-
-        // Finally, add the number itself
-        if( n != T(1) )
-            factors.push_back( {n, 1} );
-
         return factors;
     }
 
