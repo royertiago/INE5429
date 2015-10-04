@@ -86,6 +86,14 @@ namespace math { namespace factor {
         F f = pollard_rho_quadratic_function<T>(1)
     );
 
+    /* Utility function.
+     * Adds the factor 'new_factor' to the given list, keeping it ordered.
+     * The list is assumed to be ordered.
+     * If the factor is already there, only the count is updated.
+     */
+    template< typename T >
+    void add_factor( factor_list<T> &, T new_factor );
+
 // Implementation
 
     template< typename T, typename RNG >
@@ -208,6 +216,32 @@ namespace math { namespace factor {
         }
 
         return factors;
+    }
+
+    template< typename T >
+    void add_factor( factor_list<T> & list, T new_factor ) {
+        auto begin = list.begin();
+        auto end = list.end();
+        // We will search linearly for the position of new_factor.
+        while( end != begin ) {
+            if( end[-1].first > new_factor )
+                --end;
+            else {
+                if( end[-1].first == new_factor )
+                    end[-1].second++;
+                else {
+                    /* end[-1].first < new_factor < end[0].first,
+                     * so we must insert a new pair exactly after end[-1].
+                     */
+                    list.insert( end, {new_factor, 1} );
+                }
+                return;
+            }
+        }
+        /* The factor is smaller than every other factor of the list,
+         * so we must add it to the beginning.
+         */
+        list.insert( begin, {new_factor, 1} );
     }
 
 }} // namespace math::factor

@@ -88,3 +88,42 @@ TEST_CASE( "Trial Division", "[math]" ) {
     CHECK( math::factor::trial_division( n, 3 ) == empty_list );
     CHECK( n == 49 );
 }
+
+TEST_CASE( "Utilities" ) {
+    SECTION( "add_factor" ) {
+        using math::factor::factor_list;
+        factor_list<int> list;
+        factor_list<int> list1 = {{11, 1}};
+        factor_list<int> list2 = {{11, 2}};
+        factor_list<int> list3 = {{5, 1}, {11, 2}};
+        factor_list<int> list4 = {{3, 1}, {5, 1}, {11, 2}};
+        factor_list<int> list5 = {{3, 1}, {5, 1}, {7, 1}, {11, 2}};
+        factor_list<int> list6 = {{3, 1}, {5, 1}, {7, 1}, {11, 2}, {13, 1}};
+        factor_list<int> list7 = {{3, 1}, {5, 2}, {7, 1}, {11, 2}, {13, 1}};
+        factor_list<int> list8 = {{3, 1}, {5, 3}, {7, 1}, {11, 2}, {13, 1}};
+
+        math::factor::add_factor( list, 11 );
+        CHECK( list == list1 );
+
+        math::factor::add_factor( list, 11 );
+        CHECK( list == list2 );
+
+        math::factor::add_factor( list, 5 );
+        CHECK( list == list3 );
+
+        math::factor::add_factor( list, 3 );
+        CHECK( list == list4 );
+
+        math::factor::add_factor( list, 7 );
+        CHECK( list == list5 );
+
+        math::factor::add_factor( list, 13 );
+        CHECK( list == list6 );
+
+        math::factor::add_factor( list, 5 );
+        CHECK( list == list7 );
+
+        math::factor::add_factor( list, 5 );
+        CHECK( list == list8 );
+    }
+}
