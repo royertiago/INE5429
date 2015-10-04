@@ -14,7 +14,7 @@ int main( int argc, char ** argv ) {
     }
 
     std::cout << number << ':';
-    for( auto pair : math::factor::trial_division( number ) )
+    for( auto pair : math::factor::factor( number ) )
         for( int i = 0; i < pair.second; i++ )
             std::cout << ' ' << pair.first;
 

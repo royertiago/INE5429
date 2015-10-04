@@ -21,7 +21,7 @@ namespace math {
 
         T phi = p - 1;
         std::vector<T> exponents;
-        for( auto pair : math::factor::trial_division( phi ) )
+        for( auto pair : math::factor::factor( phi ) )
             exponents.push_back( phi / pair.first );
         /* It can be shown that a number m is a primitive root modulo p
          * if and only if, for every factor f of p-1, m^((p-1)/f) != 1 (mod p).
