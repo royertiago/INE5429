@@ -172,8 +172,7 @@ namespace math { namespace factor {
         T i(1); // Current iteration index.
         T l_i(0); // Value l(i) - 1, the index against which we are comparing to.
 
-        T x_l_i = x0; // X_{l(i) - 1}, the value against which
-        // we will compare to.
+        T x_l_i = x0 % n; // X_{l(i) - 1}, the value against which we will compare to.
 
         T x_i = f(x_l_i) % n; // X_i; Current value of iteration
 
