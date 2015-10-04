@@ -1,34 +1,81 @@
-/* Program that generates a prime number of the given size.
- *
- * This program uses Fermat's test for primalty, with 30 trials,
- * and the xorshift algorithm for random number generation.
- */
+namespace command_line {
+    const char help_message[] =
+" [options] <number of bytes>\n"
+"Generates a prime number with the chosen number of bytes.\n"
+"\n"
+"The program will randomly generate numbers with the desired amount of bytes\n"
+"(using Xorshift for random number generation),\n"
+"and use the Fermat primality test find a prime.\n"
+"\n"
+"Options:\n"
+"--verbose\n"
+"    Print the numbers being tested.\n"
+"\n"
+"--trials <N>\n"
+"    Chose the number of trials to Fermat's primality test.\n"
+"    Default: 30.\n"
+"\n"
+"--help\n"
+"    Displays this help and quit.\n"
+;
+} // namespace command_line
 
-#include <cstdio>
 #include <iostream>
+#include "cmdline/args.hpp"
 #include "random/xorshift.hpp"
 #include "math/primality.hpp"
 
-int main( int argc, char ** argv ) {
-    int digits;
-    if( argc != 2 || std::sscanf( argv[1], "%d", &digits ) != 1 ) {
-        std::cerr << "Usage: " << argv[0] << " [number of bytes]\n";
-        return 1;
+namespace command_line {
+    bool verbose = false;
+    int fermat_trials = 30;
+    int bytes;
+
+    void parse( cmdline::args && args ) {
+        while( args.size() > 0 ) {
+            std::string arg = args.peek();
+            if( arg == "--verbose" ) {
+                args.shift();
+                verbose = true;
+                continue;
+            }
+            if( arg == "--trials" ) {
+                args.shift();
+                args >> fermat_trials;
+                continue;
+            }
+            if( arg == "--help" ) {
+                std::cout << "Usage: " << args.program_name() << help_message;
+                std::exit( 0 );
+            }
+            args >> bytes;
+        }
     }
+}
+
+
+int main( int argc, char ** argv ) {
+    command_line::parse( cmdline::args(argc, argv) );
 
     rng::xorshift rng;
-    int count = 0;
+    int attempts = 0;
     mpz_class number;
-    printf( "Digits = %d\n", digits );
 
     do {
-        number = rng::gmp_generate( rng, digits );
-        count++;
-        std::cout << "Trying " << number << '\n';
+        number = rng::gmp_generate( rng, command_line::bytes );
+        attempts++;
+        if( command_line::verbose )
+            std::cout << "Trying " << number << '\n';
     }
-    while( !math::primality::fermat( number, rng, 30 ) );
+    while( !math::primality::fermat( number, rng, command_line::fermat_trials ) );
 
-    std::cout << "Found prime number " << number
-        << " after " << count << " trials.\n";
+    if( command_line::verbose )
+        std::cout << "Found prime number ";
+
+    std::cout << number;
+
+    if( command_line::verbose )
+        std::cout << " after " << attempts << " attempts.";
+
+    std::cout << std::endl;
     return 0;
 }
