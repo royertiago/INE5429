@@ -45,6 +45,11 @@ namespace math { namespace factor {
 
 // Specialized functions
 
+    /* Same as 'factor', but skips the initial trial division stage.
+     */
+    template< typename T, typename RNG = rng::xorshift >
+    factor_list<T> factor_notrial( T n, RNG rng = rng::xorshift() );
+
     /* Try to divide the given number by small primes first.
      * The number n is divided by any factors found.
      * Returns an ordered list of factors,
@@ -106,6 +111,26 @@ namespace math { namespace factor {
     template< typename T, typename RNG >
     factor_list<T> factor( T n, RNG rng ) {
         return pollard_rho( n, T(rng()), rng );
+    }
+
+    /* This function will be responsible for checking that
+     * each value returned by pollard_rho is actually prime,
+     * and, if not, calling itself recursively to factor it.
+     */
+    template< typename T, typename RNG >
+    factor_list<T> factor_notrial( T n, RNG rng ) {
+        factor_list<T> ret;
+        for( auto pair : pollard_rho(n, T(rng()), rng) ) {
+            /* It is safe to ignore the vaule of pair.second
+             * because pollard_rho always returns a factor list with
+             * pair.second == 1 for every pair in the list.
+             */
+            if( primality::fermat(pair.first, rng, 30) )
+                add_factor( ret, pair.first );
+            else
+                ret = merge_lists( ret, factor_notrial(pair.first, rng) );
+        }
+        return ret;
     }
 
     template< typename T >

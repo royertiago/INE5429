@@ -89,6 +89,34 @@ TEST_CASE( "Trial Division", "[math]" ) {
     CHECK( n == 49 );
 }
 
+TEST_CASE( "Pollard's Rho", "[math]" ) {
+    /* This is a somewhat artificial test,
+     * because Pollard's Rho tends to have a hard time factoring very small numbers.
+     *
+     * (It's like El Chavo del Ocho:
+     *  User: Pollard's Rho, factor the number 4.
+     *  Rho: This is easy, pick a harder number.
+     *  User: No, factor 4 first.
+     *  Rho: It is too easy, ask a more difficult number.
+     *  User: I'll do, but factor 4 first.
+     *  Rho: Factor the number 4.
+     *  User: Exactly.
+     *  Rho: Find p and q such that p*q == 4.
+     *  User: Yes.
+     *  Rho: And p and q must be different than 1.
+     *  User: That's right.
+     *  Rho (embarassed): I... I knew this with large numbers... )
+     */
+    math::factor::factor_list<int> factors81 = {{3, 4}};
+    CHECK( math::factor::factor_notrial(81) == factors81 );
+
+    math::factor::factor_list<int> factors27783 = {{3, 4}, {7, 3}};
+    CHECK( math::factor::factor_notrial(27783) == factors27783 );
+
+    math::factor::factor_list<int> factors20449 = {{11, 2}, {13, 2}};
+    CHECK( math::factor::factor_notrial(20449) == factors20449 );
+}
+
 TEST_CASE( "Utilities" ) {
     SECTION( "add_factor" ) {
         using math::factor::factor_list;
