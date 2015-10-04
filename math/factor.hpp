@@ -113,7 +113,11 @@ namespace math { namespace factor {
 
     template< typename T, typename RNG >
     factor_list<T> factor( T n, RNG rng ) {
-        return pollard_rho( n, T(rng()), rng );
+        factor_list<T> ret = trial_division( n );
+        if( n != T(1) )
+            ret = merge_lists( ret, factor_notrial(n) );
+
+        return ret;
     }
 
     /* This function will be responsible for checking that
