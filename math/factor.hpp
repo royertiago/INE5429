@@ -32,9 +32,16 @@ namespace math { namespace factor {
      * This function coordinates the efforts of the functions below;
      * unless you want to fine-tune the algorithm,
      * this is the only function you will ever need to call.
+     *
+     * This function uses probabilistic methods
+     * to both test primality in intermediate steps
+     * and to initialize the algorithms.
+     * (Thus the algorithm actually has a small chance of failing.)
+     * The parameter rng allows the caller to, at least,
+     * control the initial seed used by the algorithm.
      */
-    template< typename T >
-    factor_list<T> factor( T n );
+    template< typename T, typename RNG = rng::xorshift >
+    factor_list<T> factor( T n, RNG rng = rng::xorshift() );
 
     /* Attempt to factor n using every odd number as a candidate.
      * This algorithm is almost as slow as brute-force.
@@ -85,13 +92,19 @@ namespace math { namespace factor {
 
     /* Pollard's Rho algorithm,
      * with Brent's cycle detection algorithm.
+     *
+     * The random number generator is used to choose where to start the algorithm
+     * and to test primality in intermediate steps.
      */
-    template< typename T, typename F = T(T) >
-    factor_list<T> pollard_rho( T n, F f = pollard_rho_default_function<T> ) {
+    template< typename T, typename RNG = rng::xorshift, typename F = T(T) >
+    factor_list<T> pollard_rho(
+        T n,
+        RNG rng = rng::xorshift(),
+        F f = pollard_rho_default_function<T>
+    ) {
         factor_list<T> factors;
-        rng::xorshift xorshift; // To detect primality
 
-        if( math::primality::fermat( n, xorshift, 30 ) ) {
+        if( math::primality::fermat( n, rng, 30 ) ) {
             factors.push_back( {n, 1} );
             return factors;
         }
@@ -99,7 +112,7 @@ namespace math { namespace factor {
         T i(1); // Current iteration index.
         T l_i(0); // Value l(i) - 1, the index against which we are comparing to.
 
-        T x_l_i( xorshift() % n ); // X_{l(i) - 1}, the value against which
+        T x_l_i( rng() % n ); // X_{l(i) - 1}, the value against which
         // we will compare to.
 
         T x_i = f(x_l_i) % n; // X_i; Current value of iteration
@@ -124,7 +137,7 @@ namespace math { namespace factor {
                 x_i %= n;
                 x_l_i %= n;
 
-                if( math::primality::fermat( n, xorshift, 30 ) ) {
+                if( math::primality::fermat( n, rng, 30 ) ) {
                     // No more factoring to do.
                     factors.push_back( {n, 1} );
                     return factors;
@@ -153,9 +166,9 @@ namespace math { namespace factor {
     }
 
     // Implementation of factor, using Pollard's rho algorithm directly
-    template< typename T >
-    factor_list<T> factor( T n ) {
-        return pollard_rho( n );
+    template< typename T, typename RNG >
+    factor_list<T> factor( T n, RNG rng ) {
+        return pollard_rho( n, rng );
     }
 
 }} // namespace math::factor
