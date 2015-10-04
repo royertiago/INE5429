@@ -39,6 +39,9 @@ namespace math { namespace factor {
      * (Thus the algorithm actually has a small chance of failing.)
      * The parameter rng allows the caller to, at least,
      * control the initial seed used by the algorithm.
+     *
+     * Inside the function, we use values as high as n*n,
+     * so choose T as to not overflow.
      */
     template< typename T, typename RNG = rng::xorshift >
     factor_list<T> factor( T n, RNG rng = rng::xorshift() );
