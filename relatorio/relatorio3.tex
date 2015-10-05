@@ -97,4 +97,119 @@ eleva o valor $315$ ao número $34$, obtendo
 
 Alice e Bob agora compartilham do valor $696$.
 
+\section{Implementação}
+
+O protocolo foi encapsulado numa classe,
+que cuida do processo de gerar as chaves secretas e a chave comum.
+Este código está em \verb"protocols/diffie_hellman.hpp".
+
+\begin{verbatim}
+template< typename T = mpz_class >
+class diffie_hellman {
+    T prime, primitive_root;
+    T private_number;
+    T public_number;
+    T partner_public_number;
+    T common_secret;
+
+public:
+    diffie_hellman( T prime, T primitive_root ):
+        prime( prime ),
+        primitive_root( primitive_root )
+    {}
+
+    /* Generate our private number,
+     * that will be used to construct the common secret number.
+     */
+    template< typename RNG >
+    void generate_private_number( RNG & rng ) {
+        // TODO: Make this GMP-independent
+        int bytes = (mpz_sizeinbase( prime.get_mpz_t(), 2 ) + 7)/8;
+        private_number = rng::gmp_generate( rng, bytes );
+        private_number %= prime;
+
+        public_number = math::pow_mod( primitive_root, private_number, prime );
+    }
+
+    /* Returns the public number that must be sent to our partner.
+     */
+    T get_public_number() const {
+        return public_number;
+    }
+
+    /* Informs the public number of our partner.
+     */
+    void set_partner_public_number( T t ) {
+        partner_public_number = t;
+        common_secret = math::pow_mod( t, private_number, prime );
+    }
+
+    /* Returns the secret number which we share with our partner.
+     */
+    T get_common_secret() const {
+        return common_secret;
+    }
+};
+\end{verbatim}
+
+A função \verb"rng::gmp_generate" adapta o gerador de números aleatórios
+para gerar um número da classe \verb"mpz_class",
+a classe dos inteiros da biblioteca \verb"GMP".
+
+O programa \verb"diffie_hellman.cpp" provê uma interface
+para acessar esta classe.
+Este programa assume que $p$ e $a$ já estão calculados.
+
+\subsection{Exemplo de execução}
+
+Usando o gerador de primos do primeiro trabalho,
+gerei o número
+\begin{align*}
+    p = & 988602409265782276575624507120340176672860211163704 \\
+        & 64121339065271298938017858524727018293745742964289,
+\end{align*}
+de $101$ dígitos.
+$p-1$ pode ser fatorado como
+\begin{align*}
+    p-1 = & 2^6 * 3 * 61 * 157 * 3001 * 5827 * 60869 * 1264559 * 5508074323 * \\
+          & 7251784326360321507227567834331220107621459114376891631201987573377
+\end{align*}
+
+O gerador de raízes primitivas do trabalho 2 determinou que
+$a = 11$ é uma raiz primitiva módulo $p$.
+
+Usando duas instâncias deste programa,
+podemos simular a troca de chaves.
+As primeiras duas linhas contém o comando digitado no terminal.
+As duas linhas seguintes contém a chave pública gerada por Alice.
+Na linha 5,
+eu digitei o valor gerado por Bob,
+e as duas últimas linhas contém a chave em comum $k$.
+
+\begin{verbatim}
+$ ./diffie_hellman 98860240926578227657562450712034017667286021116
+370464121339065271298938017858524727018293745742964289 11
+Our public number: 19868465663106381873323139927395425510614517607
+737460628117410148368935680408066910484493133083215468
+Input parter's public number: 299116422830129556719122640752664695
+49749835521112148230672740127509445841723393926173765489992703076
+Common secret is 9928874927765485952788708835063095327386488740880
+742076014608966023101213546194971044410442751128001
+\end{verbatim}
+
+As linhas abaixo contém a execução da segunda instância,
+representando Bob.
+(Foi daqui que eu tirei a chave pública digitada acima.)
+
+\begin{verbatim}
+$ ./diffie_hellman 98860240926578227657562450712034017667286021116
+370464121339065271298938017858524727018293745742964289 11
+Our public number: 29911642283012955671912264075266469549749835521
+112148230672740127509445841723393926173765489992703076
+Input parter's public number: 198684656631063818733231399273954255
+10614517607737460628117410148368935680408066910484493133083215468
+Common secret is 9928874927765485952788708835063095327386488740880
+742076014608966023101213546194971044410442751128001
+\end{verbatim}
+
 \end{document}
