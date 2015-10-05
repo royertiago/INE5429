@@ -69,4 +69,32 @@ e apenas eles conhecem este número,
 que pode ser usado futuramente como uma chave
 para um algoritmo de criptografia simétrico, por exemplo.
 
+\section{Exemplo numérico}
+
+O primo utilizado será $p = 2017$
+e a raiz primitiva módulo $p$ escolhida é $a = 5$.
+
+Usando algum gerador de números aleatórios,
+Alice gera o número $A = 859$,
+e Bob gera o número $B = 34$.
+Os valores correspondentes são
+\begin{align*}
+    a^A = 5^{859} &\equiv 315 \pmod p \\
+    a^B = 5^{34} &\equiv 1250 \pmod p
+\end{align*}
+
+Os valores $315$ e $1250$ são enviados pela rede.
+Alice, então,
+eleva o valor $1250$ ao número $A$, obtendo
+\begin{equation*}
+    1250^A = 1250^{859} \equiv 696 \pmod p.
+\end{equation*}
+Bob, por sua vez,
+eleva o valor $315$ ao número $34$, obtendo
+\begin{equation*}
+    315^B = 315^{34} \equiv 696 \pmod p.
+\end{equation*}
+
+Alice e Bob agora compartilham do valor $696$.
+
 \end{document}
