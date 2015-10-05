@@ -1,0 +1,72 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{amsmath}
+
+\title{
+    INE5429 --- Segurança em Computação \\
+    Relatório III --- Protocolo Diffie-Hellman
+}
+\author{
+    Tiago Royer - 12100776
+}
+
+\date{05 de outubro de 2015}
+
+\begin{document}
+\maketitle
+
+O objetivo deste trabalho era estudar e implementar
+o protocolo de troca de chaves Diffie-Hellman.
+
+Todo o código está disponível em \verb"https://github.com/royertiago/INE5429".
+
+\section{Descrição do protocolo}
+
+Neste protocolo,
+o objetivo é construir um número $k$ que será comum às duas partes envolvidas
+(que chamaremos de Alice e Bob),
+mas que seja desconhecido para quem quer que esteja ouvindo o canal de comunicação.
+
+Sejam $p$ um número primo e $a$ uma raiz primitiva módulo $p$;
+estes dois números serão usados para definir o corpo sobre o qual
+as operações do protocolo serão feitas,
+e devem ser conhecidos tando por Alice quanto por Bob de antemão.
+
+Alice gera um número $A$ e Bob gera um número $B$.
+Os números $A$ e $B$ são mantidos privados por Alice e Bob,
+respectivamente.
+Então, Alice e Bob enviarão,
+respectivamente, os números
+\begin{equation*}
+    a^A \bmod p \quad \text{e} \quad a^B \bmod p
+\end{equation*}
+pelo canal inseguro.
+
+Usando exponenciação modular,
+é rápido obter os valores $a^A \bmod p$ e $a^B \bmod p$
+a partir de $A$ e $B$, respectivemente;
+entretanto,
+mesmo que $a$, $p$, $a^A \bmod p$ e $a^B \bmod p$ sejam descobertos,
+ainda assim é computacionalmente intratável
+obter os valores $A$ e $B$ individualmente.
+(Este problema corresponde a uma instância do log discreto,
+o qual não possui algoritmo rápido conhecido.)
+
+Finalmente, Alice calcula $(a^B)^A \equiv a^{AB} \pmod p$
+usando seu número $A$,
+e Bob calcula $(a^A)^B \equiv a^{AB} \pmod p$,
+usando seu número $B$.
+Agora,
+Alice e Bob compartilham o número $k = a^{AB}$.
+Observe que, ainda assim,
+não é possível calcular rapidamente o valor $k$ sem ter acesso a $A$ ou a $B$;
+de fato, Alice sequer sabe o valor $B$
+e Bob não conhece o valor $A$.
+Entretanto,
+ambos conhecem o número $k$,
+e apenas eles conhecem este número,
+que pode ser usado futuramente como uma chave
+para um algoritmo de criptografia simétrico, por exemplo.
+
+\end{document}
