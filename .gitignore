@@ -10,6 +10,7 @@
 *.dep.mk
 math/prime_list/list.cpp
 xorshift
+diffie_hellman
 factor
 fermat_primality_test
 generate_prime_number
