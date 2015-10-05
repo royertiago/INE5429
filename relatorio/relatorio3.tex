@@ -212,4 +212,65 @@ Common secret is 9928874927765485952788708835063095327386488740880
 742076014608966023101213546194971044410442751128001
 \end{verbatim}
 
+\section{Problemas do algoritmo}
+
+\subsection{Man-in-the-middle}
+Do ponto de vista de segurança,
+o protocolo é vulnerável a ataques do tipo ``homem no meio''.
+A ideia é interceptar e bloquear a fase inicial da troca dos valores $a^A$ e $a^B$.
+Chame de Mallory o atacante;
+Mallory irá interromper a comunicação direta entre Alice e Bob,
+e tudo o que um mandar para o outro passará por Mallory.
+Caso Alice e Bob ainda não tenham gerado a chave em comum $k$,
+Mallory pode executar o protocolo duas vezes,
+uma com Alice e outra com Bob, simultaneamente:
+
+Alice gera $A$, Bob gera $B$ e Mallory gera $M$.
+Alice, então, envia $a^A$ para Bob.
+Como Mallory está no meio,
+Mallory intercepta o valor $a^A$
+e envia o valor $a^M$ em seu lugar.
+Bob recebe $a^M$ pensando ser $a^A$,
+e calcula o valor $k_B = a^{MB}$.
+
+Na outra direção,
+Bob manda $a^B$ para Alice.
+Mallory intercepta esta mensagem,
+e, usando seu próprio valor $M$,
+calcula $a^{BM} = k_B$.
+Então, Mallory envia $a^M$ para Alice,
+que o recebe pensando ser $a^B$, e calcula o valor $k_A = a^{AM}$.
+Como Mallory recebeu $a^A$ anteriormente,
+também pode calcular $k_A = a^{MA}$.
+
+Neste instante,
+em vez de Alice e Bob compartilharem uma chave secreta $k$,
+agora Alice terá uma chave $k_A$,
+compartilhada com Mallory,
+e Bob terá uma chabe $k_B$,
+também compartilhada com Mallory.
+Se Alice mandar uma mensagem para Bob cifrada com $k_A$
+(que Alice pensa ser $k$),
+Mallory pode simplesmente decifrá-la (pois conhece $k_A$),
+cifrá-la com $k_B$, e mandar para Bob.
+Portanto, Alice e Bob ainda podem se comunicar,
+mas Mallory pode ler todas as mensagens trocadas.
+Além disso, Mallory pode forjar mensagens,
+pois conhece tanto $k_A$ quanto $k_B$.
+
+\subsection{Custo computacional da fatoração}
+Computacionalmente,
+a etapa mais custosa do algoritmo é a fatoração de $p-1$.
+(Eu tive de gerar vários números primos diferentes
+até conseguir algum que pudesse ser fatorado rapidamente pelo meu programa,
+que usa o algoritmo rho de Pollard.)
+
+Uma forma de evitar isso na prática é gerar um primo grande $q$
+e computar $p = qr + 1$ para vários valores ``pequenos'' de $r$;
+se $p$ for primo,
+já saberemos de antemão a fatoração prima de $p-1$.
+Além disso, ter o fator primo grande $q$
+nos ``protege'' do algoritmo Polligh-Hellman,
+que depende de $p-1$ ter apenas fatores pequenos para funcionar eficientemente.
+
 \end{document}
