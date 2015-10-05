@@ -3,7 +3,8 @@ docdir := $(dir $(lastword $(MAKEFILE_LIST)))
 # Stripped slash directory
 docsdir := $(patsubst %/,%,$(docdir))
 
-pdf := $(wildcard $(docdir)relatorio*.pdf)
+tex_src := $(wildcard $(docdir)relatorio*.tex)
+pdf := $(tex_src:.tex=.pdf)
 
 .PHONY: doc
 all: doc
