@@ -50,7 +50,7 @@ namespace rsa {
 
     template< typename T >
     private_key<T> build_private_key( T p, T q, T b ) {
-        return { math::modular_inverse( b, (p-1) * (q-1) ), p * q };
+        return { math::modular_inverse( b, T( (p-1) * (q-1) ) ), p * q };
     }
 
     template< typename T >
