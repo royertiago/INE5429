@@ -9,16 +9,31 @@
 #include <gmpxx.h>
 
 namespace rng {
-    /* Returns a mpz_class with the specified number of bytes,
+    /* Returns a mpz_class with the specified number of bits,
      * using the given random number generator.
      */
     template< typename RNG >
-    mpz_class gmp_generate( RNG & rng, std::uint32_t number_of_bytes );
+    mpz_class gmp_generate( RNG & rng, std::uint32_t number_of_bits );
 
 // Implementation
 
     template< typename RNG >
-    mpz_class gmp_generate( RNG & rng, std::uint32_t number_of_bytes ) {
+    mpz_class gmp_generate( RNG & rng, std::uint32_t number_of_bits ) {
+        if( number_of_bits == 0 )
+            return mpz_class( 0 );
+
+        /* The GMP binary format has a 4-byte header,
+         * that contains a big-endian integer that says the number of bytes,
+         * and then the bytes of the number, also in big-endian order.
+         *
+         * To generate a number with the specified number of bits,
+         * we will first populate the bytes using the given RNG,
+         * and then adjust the higher byte so that the returned number
+         * has the exact required number of bits.
+         */
+        std::uint32_t number_of_bytes = (number_of_bits + 7)/8;
+        unsigned bits_last_byte = (number_of_bits - 1) % 8 + 1;
+
         /* The buffer we will write to will be kept as static,
          * so that sucessive invocations of this method does not have
          * the memory allocation overhead. */
@@ -45,6 +60,24 @@ namespace rng {
         int j = 0;
         for( int i = 4; i < 4 + number_of_bytes; i++ ) {
             buf[i] = random_number % 0x100;
+            random_number /= 0x100;
+            j++;
+            if( j == random_size ) {
+                j = 0;
+                random_number = rng();
+            }
+        }
+
+        // Adjust the highest byte
+        unsigned mask = (1u << bits_last_byte) - 1;
+        unsigned lower_limit = mask >> 1;
+        /* mask is a bit mask with exactly bits_last_byte ones.
+         * lower_limit is the smallest value that will yield
+         * the required number of bits in the last byte.
+         */
+        buf[4] = buf[4] & mask;
+        while( buf[4] <= lower_limit ) {
+            buf[4] = random_number & mask;
             random_number /= 0x100;
             j++;
             if( j == random_size ) {

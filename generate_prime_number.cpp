@@ -1,9 +1,9 @@
 namespace command_line {
     const char help_message[] =
-" [options] <number of bytes>\n"
-"Generates a prime number with the chosen number of bytes.\n"
+" [options] <number of bits>\n"
+"Generates a prime number with the chosen number of bits.\n"
 "\n"
-"The program will randomly generate numbers with the desired amount of bytes\n"
+"The program will randomly generate numbers with the desired amount of bits\n"
 "(using Xorshift for random number generation),\n"
 "and use the Fermat primality test find a prime.\n"
 "\n"
@@ -28,7 +28,7 @@ namespace command_line {
 namespace command_line {
     bool verbose = false;
     int fermat_trials = 30;
-    int bytes;
+    int bits;
 
     void parse( cmdline::args && args ) {
         while( args.size() > 0 ) {
@@ -47,7 +47,7 @@ namespace command_line {
                 std::cout << "Usage: " << args.program_name() << help_message;
                 std::exit( 0 );
             }
-            args >> bytes;
+            args >> bits;
         }
     }
 }
@@ -61,7 +61,7 @@ int main( int argc, char ** argv ) {
     mpz_class number;
 
     do {
-        number = rng::gmp_generate( rng, command_line::bytes );
+        number = rng::gmp_generate( rng, command_line::bits );
         attempts++;
         if( command_line::verbose )
             std::cout << "Trying " << number << '\n';

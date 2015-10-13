@@ -53,8 +53,8 @@ namespace protocol {
     template< typename T > template< typename RNG >
     void diffie_hellman<T>::generate_private_number( RNG & rng ) {
         // TODO: Make this GMP-independent
-        int bytes = (mpz_sizeinbase( prime.get_mpz_t(), 2 ) + 7)/8;
-        private_number = rng::gmp_generate( rng, bytes );
+        int bits = mpz_sizeinbase( prime.get_mpz_t(), 2 );
+        private_number = rng::gmp_generate( rng, bits );
         private_number %= prime;
 
         public_number = math::pow_mod( primitive_root, private_number, prime );
