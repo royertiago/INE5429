@@ -2,6 +2,7 @@
 #define MATH_GENERATE_PRIMES_HPP
 
 #include "random/gmp_adapter.hpp"
+#include "math/primality.hpp"
 
 namespace math {
 
