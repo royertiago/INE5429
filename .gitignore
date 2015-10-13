@@ -15,5 +15,6 @@ factor
 fermat_primality_test
 generate_prime_number
 primitive_root
+rsa
 math/prime_list/generate_list
 test/test
