@@ -4,6 +4,7 @@
 /* Algorithms and data structures to support the RSA cryptography algorithm.
  */
 
+#include <iostream>
 #include "math/algo.hpp"
 
 namespace rsa {
@@ -28,6 +29,16 @@ namespace rsa {
         // Decrypts the given number.
         T decrypt( T ) const;
     };
+
+    /* Read/writes the keys to files. */
+    template< typename T >
+    std::istream & operator>>( std::istream &, public_key<T> & );
+    template< typename T >
+    std::istream & operator>>( std::istream &, private_key<T> & );
+    template< typename T >
+    std::ostream & operator<<( std::ostream &, public_key<T> & );
+    template< typename T >
+    std::ostream & operator<<( std::ostream &, private_key<T> & );
 
     /* Constructs the public key for the algorithm.
      * p and q must be primes.
@@ -62,6 +73,27 @@ namespace rsa {
     T private_key<T>::decrypt( T y ) const {
         return math::pow_mod( y, a, n );
     }
+
+    template< typename T >
+    std::istream & operator>>( std::istream & is, public_key<T> & key ) {
+        return is >> key.b >> key.n;
+    }
+
+    template< typename T >
+    std::istream & operator>>( std::istream & is, private_key<T> & key ) {
+        return is >> key.a >> key.n;
+    }
+
+    template< typename T >
+    std::ostream & operator<<( std::ostream & os, public_key<T> & key ) {
+        return os << key.b << ' ' << key.n;
+    }
+
+    template< typename T >
+    std::ostream & operator<<( std::ostream & os, private_key<T> & key ) {
+        return os << key.a << ' ' << key.n;
+    }
+
 }
 
 #endif // PROTOCOLS_RSA_HPP
