@@ -95,8 +95,6 @@ int main( int argc, char ** argv ) {
     command_line::parse( cmdline::args( argc, argv ) );
 
     if( command_line::gen_key ) {
-        std::cout << "Generating key\n";
-        std::cout << "Public -> " << command_line::public_key_file << '\n';
         std::ofstream public_key_file( command_line::public_key_file );
         std::ofstream private_key_file( command_line::private_key_file );
         rsa::public_key<mpz_class> public_key;
@@ -112,8 +110,6 @@ int main( int argc, char ** argv ) {
 
         public_key_file << public_key << '\n';
         private_key_file << private_key << '\n';
-        std::cout << public_key << '\n';
-        std::cout << private_key << '\n';
     }
     else if( command_line::encrypt ) {
         std::fstream file( command_line::public_key_file );
