@@ -2,6 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[brazil]{babel}
 \usepackage{amsmath}
+\usepackage{amssymb}
 
 \title{
     INE5429 --- Segurança em Computação \\
@@ -227,5 +228,122 @@ $ ./rsa --public public --encrypt <<< 1238926361552897
 $ ./rsa --private private --decrypt <<< 550236520293135023139610064234111042377125011004916428822055392023022999833818738529724140802542083118107682010936086143277771056505223560740885790366758551231506073197364550866296101745191739313439305000235160758815423636180284422461790496894498286189827232248764077266525118320192664008034739529739367197008971188018425999448358438990675146629983517631568559572466663454930953290119352951995379256993574326376358269265139209051352582596858481974857401522711122871536763804123081440805686960698243181715384676156028655408883544136377895282516692139914437209526741282996608650474392017484677644753282923970554444150403232654557870869240202045500885640972086528602083619171899063443113630959791702592995730075030042257029781145007577272774103111679705738066561490231466254700624239205925185066466208425071167722738956263200623134939754475151224725249516593808277230391025381471774202542127767995206859754739816695524278921505378622057982242099019167478860009685955339017907870480240227966168741823222948581633627205110362759868960848256947494515655645204143936448389935789785229007094687650893522427851445357941731001324464768421575378652957650362416867534165949508824867311763363043915935000757999248708241059666147247725240870392620
 1238926361552897
 \end{verbatim}
+
+\section{Questionário}
+
+\subsection{O que é a função totiente de Euler?}
+
+A função $\varphi(n)$ calcula a quantidade de números menores que $n$
+que são relativamente primos a $n$;
+isto é,
+quantos números do conjunto $\{0, 1, \dots, n-1\}$
+não compartilham fatores primos com $n$.
+
+\subsection{Por que os expoentes são determinados módulo $\varphi(n)$, e não módulo $n$?}
+
+$\varphi(n)$ é a ordem do grupo multiplicativo módulo $n$
+($\mathbb Z_n^*$).
+Pelo teorema de Lagrange,
+a ordem de qualquer elemento $m$ deste grupo divide a ordem do grupo;
+portanto, $\varphi(n)$ é um múltiplo da ordem de todos elementos.
+Assim, temos
+\begin{equation*}
+    m^{\varphi(n)} \equiv 1 \pmod n;
+\end{equation*}
+portanto,
+\begin{equation*}
+    m^{a\varphi(n) + b} \equiv m^b \pmod n.
+\end{equation*}
+
+Portanto, podemos calcular o expoente módulo $\varphi(n)$
+antes de fazer a exponenciação.
+
+\subsection{O que é PKCS \#1?}
+
+É um conjunto de recomendações publicado pela RSA Laboratories
+que contém normas de segurança relativas à implementação do algoritmo RSA.
+Ele contém orientações
+de como usar o RSA para cifrar dados em binário
+(como fazer o \emph{padding}, por exemplo),
+protocolos de assinatura digital,
+e quais funções de hash devem ser usadas.
+
+\subsection{Como o RSA pode ser usado para ciframento de dados? E como seria usado para assinatura?}
+
+O processo de cifragem foi descrito na primeira seção deste texto.
+O RSA é uma cifra assimétrica.
+Tipicamente, o RSA não é usado diretamente para fazer a cifragem;
+ele é usado para proteger uma chave simétrica
+(do AES, por exemplo),
+que será usado para cifrar os dados.
+
+Para assinatura,
+basta perceber que a escolha de qual chave é pública e qual é privada
+é irrelevante para o algoritmo.
+Portanto,
+podemos ``cifrar'' um dado usando a chave privada
+(tipicamente, apenas um resumo --- hash --- do dado em questão).
+Quem tiver posse da chave pública,
+ao ``decifrar'' o texto gerado com a chave privada,
+obterá o texto original.
+Como fabricar um texto que, ao ser ``decifrado'', gere o texto original,
+é equivalente a quebrar o RSA,
+temos uma boa confiança de que aquele texto assinado foi gerado pelo signatário.
+
+\subsection{Quais ataques são conhecidos do RSA?}
+
+De acordo com a Wikipédia~\cite{WikipediaRSA},
+a melhor criptoanálise do algoritmo
+(usando apenas informação pública)
+é o algoritmo de fatoração GNFS (\emph{generalized field number sieve}).
+Mesmo usando extenso poder computacional,
+é difícil passar dos 500 bits
+(o melhor até hoje é a fatoração de um número de 768 bits,
+após dois anos de computação).
+
+Do ponto de vista teórico,
+existem alguns ataques que permitem obter o texto em claro sob algumas circunstâncias.
+Por exemplo,
+se tanto o texto $m$ quanto o expoente público $e$ forem pequenos,
+isto é, $m^e < n$,
+a exponenciação não extrapolou o valor de $n$,
+portanto, usando algoritmos de extração de raízes de números inteiros,
+podemos recuperar $m$ de forma rápida.
+
+Outro ataque engenhoso envolve conseguir que o dono da chave privada
+decifre um texto para nós.
+O algoritmo do RSA satisfaz a propriedade de que
+o produto das cifras é a cifra dos produtos.
+Isto é,
+\begin{equation*}
+    m_1^e m_2^e \equiv (m_1 m_2)^e \pmod n.
+\end{equation*}
+Portanto,
+dado um texto cifrado $m^e$,
+podemos construir outro texto cifrado $r^e \bmod n$ usando algum número $r$
+(lembrando que $e$ e $n$ são públicos)
+e multiplicá-los, obtendo o valor insuspeito $c = m^e r^e = (mr)^e$,
+Ao decifrá-lo, obtemos o valor $mr \bmod n$.
+Se o valor $r$ for construído de forma a possuir inversa modular,
+podemos calcular $m$ multiplicando $mr$ pela inversa modular de $r$.
+
+\subsection{Por que é importante ter-se bons geradores de números aleatórios para gerar chaves RSA?}
+
+Pelo mesmo motivo que bons geradores de números aleatórios
+são necessários em qualquer aplicação criptográfica que use números aleatórios:
+minimizar a possibilidade de se encontrar um padrão nos valores gerados
+--- isto é, produzir o máximo de caos possível.
+
+A Wikipédia menciona uma análise feita por Lenstra et al.:
+se, ao gerar duas chaves $pq$ e $p' q'$,
+por acaso $p = p'$,
+então $\gcd(pq, p' q') = p$,
+portanto ambas as chaves podem ser fatoradas rapidamente
+caso o gerador de números aleatórios entre em ciclo,
+ou as sementes iniciais são muito parecidas e o gerador
+não foi projetado para lidar com esta situação.
+
+\bibliographystyle{plain}
+\bibliography{bibliografia}
 
 \end{document}
