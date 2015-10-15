@@ -97,4 +97,113 @@ Para decifrar, calculemos este valor elevado à chave privada.
     22167 ^ {21809} \bmod n = 4789.
 \end{equation*}
 
+\section{Implementação}
+
+A maquinaria interna do RSA (dados $p$, $q$ e $e$)
+está no arquivo \verb"protocols/rsa.hpp".
+(O valor $e$ é chamado de $b$ no código.)
+
+\begin{verbatim}
+/* This structure represents the public key of the algorithm.
+ * This data may be shared with everyone.
+ */
+template< typename T >
+struct public_key {
+    T b, n;
+
+    // Encrypts the given number.
+    T encrypt( T ) const {
+        return math::pow_mod( x, b, n );
+    }
+};
+
+/* This structure represents the private key of the algorithm.
+ * This data should be kept private.
+ */
+template< typename T >
+struct private_key {
+    T a, n;
+
+    // Decrypts the given number.
+    T decrypt( T ) const {
+        return math::pow_mod( y, a, n );
+    }
+};
+
+/* Constructs the public key for the algorithm.
+ * p and q must be primes.
+ * b may be any number coprime with both p-1 and q-1.
+ */
+template< typename T >
+public_key<T> build_public_key( T p, T q, T b ) {
+    return { b, p * q };
+}
+
+/* Constructs the corresponding private key.
+ * p, q and b must be the same for the function build_public_key.
+ */
+template< typename T >
+private_key<T> build_private_key( T p, T q, T b ) {
+    return { math::modular_inverse( b, T( (p-1) * (q-1) ) ), p * q };
+}
+\end{verbatim}
+
+A função \verb"math::pow_mod" faz exponenciação modular.
+\verb"math::modular_inverse" encapsula o algoritmo de Euclides extendido
+para o cálculo de inversas modulares.
+
+A geração dos números $p$, $q$ e $e$ está no arquivo \verb"rsa.cpp".
+(Está omitido o parsing da linha de comando.)
+
+\begin{verbatim}
+int main( int argc, char ** argv ) {
+    // Parse command line
+
+    if( command_line::gen_key ) {
+        std::ofstream public_key_file( command_line::public_key_file );
+        std::ofstream private_key_file( command_line::private_key_file );
+        rsa::public_key<mpz_class> public_key;
+        rsa::private_key<mpz_class> private_key;
+
+        rng::xorshift rng;
+        mpz_class p = math::generate_prime_number(rng, command_line::key_size/2, 30);
+        mpz_class q = math::generate_prime_number(rng, (command_line::key_size+1)/2, 30);
+        mpz_class b = math::generate_prime_number(rng, 2*command_line::key_size/3, 30);
+        // This number b is guaranteed to be coprime with both p and q.
+        public_key = rsa::build_public_key(p, q, b);
+        private_key = rsa::build_private_key(p, q, b);
+
+        public_key_file << public_key << '\n';
+        private_key_file << private_key << '\n';
+    }
+    else if( command_line::encrypt ) {
+        std::fstream file( command_line::public_key_file );
+        rsa::public_key<mpz_class> public_key;
+        file >> public_key;
+
+        mpz_class number;
+        while( std::cin >> number )
+            std::cout << public_key.encrypt(number) << '\n';
+    } else {
+        std::fstream file( command_line::private_key_file );
+        rsa::private_key<mpz_class> private_key;
+        file >> private_key;
+
+        mpz_class number;
+        while( std::cin >> number )
+            std::cout << private_key.decrypt(number) << '\n';
+    }
+
+    return 0;
+}
+\end{verbatim}
+
+\verb"math::generate_prime_number" é o código do trabalho 1.
+Este algoritmo gera dois primos $p$ e $q$,
+de tamanhos $\lfloor n/2 \rfloor$ e $\lceil n/2 \rceil$,
+respectivamente.
+O valor $d$ (chamado de \verb"b" no código)
+é um número primo cujo tamanho está entre $\max(p, q)$ e $pq$,
+portanto $d$ já é gerado coprimo a $\phi(n)$.
+
 \end{document}
