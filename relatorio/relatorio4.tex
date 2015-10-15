@@ -1,0 +1,100 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{amsmath}
+
+\title{
+    INE5429 --- Segurança em Computação \\
+    Relatório IV --- RSA
+}
+\author{
+    Tiago Royer - 12100776
+}
+
+\date{14 de outubro de 2015}
+
+\begin{document}
+\maketitle
+
+O objetivo deste trabalho era estudar e implementar
+o algoritmo de criptografia do RSA.
+
+Todo o código está disponível em \verb"https://github.com/royertiago/INE5429".
+
+\section{Descrição do algoritmo}
+
+De acordo com o teorema de Euler,
+para todo inteiro $m$ (que entenderemos como sendo a mensagem),
+todo inteiro $n$ e todo par de inteiros $e$ e $d$
+(as chaves)
+tais que
+\begin{equation*}
+    ed \equiv 1 \pmod{\varphi(n)},
+\end{equation*}
+temos
+\begin{equation*}
+    (m^e)^d \equiv m \pmod n.
+\end{equation*}
+
+Em essência,
+o algoritmo RSA ``industrializa'' esta observação.
+Gere dois primos grandes $p$ e $q$.
+O valor $n$ será o produto destes dois primos:
+\begin{equation*}
+    n = pq
+\end{equation*}
+Se $p$ e $q$ forem distintos,
+\begin{equation*}
+    \phi(pq) = (p-1) * (q-1),
+\end{equation*}
+portanto, o valor de $\phi(n)$ é fácil de ser calculado.
+Agora,
+gere um valor $e$ e,
+usando o algoritmo de Euclides extendido,
+calcule sua inversa modular $d$ com relação a $\phi(n)$.
+Se esta inversa modular existir,
+geramos nosso par de chaves criptográficas:
+$(e, n)$ é a chave pública,
+que será usada para cifragem,
+e $(d, n)$ é a chave privada,
+que será usada para decifragem.
+
+Dada uma mensagem $m$, o texto cifrado é
+\begin{equation*}
+    m^e \mod n
+\end{equation*}
+
+Dada a mensagem cifrada $m^e$, o texto original é
+\begin{equation*}
+    (m^e)^d \equiv m \pmod n.
+\end{equation*}
+
+\subsection{Exemplo numérico}
+
+Escolha $p = 137$ e $q = 193$.
+Temos $n = 26441$.
+Para o valor $e$, da chave pública,
+podemos escolher qualquer valor coprimo a $p-1$ e $q-1$;
+por exemplo, $e = 977$.
+Usando o Euclides extendido,
+obtemos a equação
+\begin{equation*}
+    977 * 21809 \equiv 1 \pmod{\phi(n)};
+\end{equation*}
+portanto, $d = 21809$.
+
+Temos a chave pública $(977, 26441)$, e a chave privada $(21809, 26441)$.
+
+Para cifrar a mensagem $m = 4789$, por exemplo,
+calculamos
+\begin{equation*}
+    4789 ^ {977} \bmod n = 22167.
+\end{equation*}
+Portanto, $22167$ é a mensagem cifrada.
+
+Para decifrar, calculemos este valor elevado à chave privada.
+\begin{equation*}
+    22167 ^ {21809} \bmod n = 4789.
+\end{equation*}
+
+\end{document}
