@@ -6,6 +6,10 @@
 
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{amsthm}
+\newtheorem{theorem}{Teorema}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definição}
 
 \begin{document}
 
@@ -164,6 +168,104 @@ que permitem fazer este tipo de compartilhamento de segredo
 sem este problema.
 
 \section{Esquema de Shamir}
+
+\begin{definition}
+    Um \emph{esquema de limiar $(t, n)$}
+    é um método de compartilhamento de segredos
+    que envolve $n$ participantes $P_1, \dots, P_n$.
+    Cada participante $P_i$ receberá uma \emph{quota}%
+    \footnote{Do inglês \emph{share}}
+    $s_i$ de um segredo $s$.
+    Qualquer conjunto de $t$ quotas distintas
+    pode ser usado para reconstruir o segredo original $s$ eficientemente;
+    entretanto,
+    não é possível obter $s$ usando apenas $t-1$ quotas.
+    \cite{Shamir1979}
+\end{definition}
+
+O exemplo citado na seção anterior corresponde a um esquema $(2, 3)$.
+
+O esquema de Shamir~\cite{Shamir1979} implementa um desses esquemas.
+A ideia é usar interpolação polinomial.
+Um polinômio $p$ de grau $t-1$ estará completamente determinado
+se $t$ diferentes pares $(x, p(x))$ forem conhecidos;
+podemos, então,
+escolher o segredo como sendo sempre $p(0)$.
+Com $t$ diferentes pares,
+podemos reconstruir o polinômio $p$ e restaurar $s = p(0)$;
+por outro lado,
+com $t-1$ pares,
+existem infinitos polinômios de grau $t-1$ que passam por aquele ponto,
+portanto não conseguimos determinar $s$.
+
+Formalmente:
+
+\begin{definition}
+    Seja $\{P_1, \dots, P_n\}$ um conjunto de participantes
+    e $s$ o segredo que deseja ser compartilhado.
+    O esquema de Shamir~\cite{Shamir1979}
+    consiste em escolher aleatoriamente um polinômio $p$
+    de grau $t-1$
+    da forma
+    \begin{equation*}
+        p(x) = a_0 + a_1 x^1 + a_2 x^2 + \dots + a_{t-1} x^{t-1},
+    \end{equation*}
+    em que $a_0 = s$.
+    Então, cada uma das quotas do segredo é dada por
+    \begin{equation*}
+        s_i = (i, p(i)).
+    \end{equation*}
+\end{definition}
+
+A ideia é que este polinômio seja construído sobre algum corpo finito;
+por exemplo, $\mathbb Z_p$ para algum primo grande $p$.
+Neste corpo,
+podemos usar a fórmula de Langrange para interpolação polinômial
+sem erros de arredondamento.
+
+\begin{theorem}
+    O esquema de Shamir é um esquema de limiar $(t, n)$.
+\end{theorem}
+
+\begin{proof}
+    A geração das quotas foi estabelecida na própria definição do esquema.
+    Iremos mostrar que é possível reconstruir o segredo
+    usando exatamente $t$ quotas,
+    mas que não ganhamos informação alguma a partir de $t-1$ quotas.
+
+    Dados $k$ pares $(x_1, y_1), \dots, (x_k, y_k)$,
+    use a fórmula de interpolação de Lagrange para reconstruir o polinômio $p$.
+    \begin{equation}
+        p(x) = \sum_{i = 1}^k y_i
+                \prod_{\begin{smallmatrix}1 \leq j \leq k\\j \neq i\end{smallmatrix}}
+                    \frac{x - x_j}{x_i - x_j}
+        \label{eq:lagrange}
+    \end{equation}
+    Este polinômio satisfará $p(x_i) = y_i$;
+    além disso, é o único polinômio de grau $t-1$ que passa por esses pontos.
+    Portanto,
+    $p$ é efetivamente reconstruído,
+    e podemos calcular $s = p(0)$.
+
+    Por outro lado,
+    podemos usar exatamente a fórmula de interpolação de Lagrange
+    para mostrar que, com $t-1$ quotas,
+    nada descobrimos a respeito do segredo.
+    Para qualquer candidato a segredo $s'$,
+    podemos adicionar, na equação~\ref{eq:lagrange},
+    o par $(0, s')$
+    no lugar do par $(x_k, y_k)$;
+    desta forma,
+    teremos um polinômio que,
+    de fato,
+    interpola os pontos $(x_1, y_1), \dots, (x_{n-1}, y_{n-1})$,
+    mas que $p(0) = s'$.
+    Portanto,
+    não podemos determinar o polinômio com $t-1$
+    (ou menos)
+    quotas.
+\end{proof}
+
 \section{Limitações inerentes ao esquema}
 \section{Esquema de Pinch}
 \section{Limitações do esquema de Pinch}
