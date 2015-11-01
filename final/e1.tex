@@ -108,6 +108,7 @@ para reconstruir o segredo original,
 basta computar
 \begin{equation*}
     \alpha = \beta + \gamma \pmod{26}.
+    \label{eq:modular_sharing}
 \end{equation*}
 
 Por exemplo,
@@ -128,8 +129,39 @@ Para reconstruir o segredo,
 basta somar as duas partes,
 letra por letra,
 módulo $26$.
-(Usando dados binários,
+(Usando números binários em vez de base $26$,
 usaríamos a operação ou-exclusivo.)
+Podemos extender este mecanismo para mais participantes
+subtraindo mais números na equação~\ref{eq:modular_sharing}
+Observe que ter uma das partes do segredo
+apenas informa seu tamanho;
+isto é,
+não ganhamos informação suficiente para obter o segredo
+sem todas as partes.
+
+Entretanto,
+caso uma das partes seja destruída
+(ou perdida, ou de alguma forma não esteja disponível),
+não é possível reconstruir o segredo original.
+Poderíamos, por exemplo,
+querer entregar uma parte do segredo ao vice-presidente ($P_3$),
+de forma que qualquer dois dos três ($P_1$, $P_2$ e $P_3$)
+pudesse reconstruir o segredo.
+Usando a ideia anterior de dividir a chave,
+podemos fazer algo como
+\begin{align*}
+    \texttt{CUSTO...} \\
+    \texttt{CUS..DIO} \\
+    \texttt{...TODIO}
+\end{align*}
+Quaisquer dois pares destas partes é suficiente para reconstruir o segredo;
+entretanto,
+voltamos a ter o mesmo problema de que a possesão de algumas das partes
+reduz o esforço computacional.
+Existem algoritmos
+(como o esquema de Shamir)
+que permitem fazer este tipo de compartilhamento de segredo
+sem este problema.
 
 \section{Esquema de Shamir}
 \section{Limitações inerentes ao esquema}
