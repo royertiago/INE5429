@@ -1,7 +1,11 @@
 \documentclass[10pt,twocolumn]{article}
+
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[brazil]{babel}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
 
 \begin{document}
 
@@ -35,6 +39,98 @@
 \end{abstract}
 
 \section{Introdução}
+
+A ideia de \emph{segredo compartilhado}
+surge da necessidade de se dividir a responsabilidade sobre uma chave secreta $s$,
+mas sem usar replicação;
+isto é,
+em vez de cada participante possuir sua cópia de $s$,
+cada participante possui apenas uma parte,
+e é necessário reunir vários participantes para reconstruir o segredo.
+
+Por exemplo,
+um país que detenha armas nucleares
+pode bloquear o lançamento com um código de segurança,
+que será compartilhado entre o Presidente da República e o Ministro da Defesa.
+(Chamaremos estes dois participantes de $P_1$ e $P_2$)
+Ambos precisam estar presentes para que o lançamento possa ser efetuado.
+
+Uma forma simples de implementar o compartilhamento, neste caso,
+é dividir a chave em duas partes,
+e dar uma para cada participante.
+Por exemplo,
+se o segredo for \texttt{CUSTODIO},
+o \emph{dealer}
+(entidade confiável que será encarregada de dividir o segredo)
+pode entregar \texttt{CUST....} para $P_1$
+e \texttt{....ODIO} para $P_2$.
+$P_1$ e $P_2$ precisam cooperar para reconstruir a chave original.
+
+Caso houvessem três membros
+($P_1$, $P_2$ e $P_3$),
+poderíamos dividir o segredo em três partes,
+e assim por diante;
+entretanto,
+neste esquema de compartilhamento de segredo,
+o conhecimento de alguma das partes
+facilita a descoberta do segredo.
+Isto é,
+sem qualquer informação sobre as partes,
+um ataque de força-bruta contra o segredo
+exigiria
+\begin{equation*}
+    (26)^8 \approx 2*10^{11} \approx 2^{37}
+\end{equation*}
+tentativas,
+enquanto que, sabendo uma das partes
+(que dá conhecimento sobre $4$ letras)
+reduz o esforço para
+\begin{equation*}
+    (26)^4 \approx 4*10^{6} \approx 2^{18}.
+\end{equation*}
+Esta propriedade deste esquema é indesejável,
+pois, idealmente,
+o conhecimento de todas as partes, exceto uma,
+não deve dar mais informação sobre o segredo
+do que conhecer nenhuma.
+
+Uma forma de implementar isso
+(neste exemplo)
+é interpretar cada letra como um número
+($\mathtt A = 0$, $\mathtt B = 1$, etc.)
+e utilizar adição em $\mathbb Z_{26}$.
+Para cada letra $\alpha$ do segredo,
+gere aleatoriamente outra letra $\beta$,
+construa $\gamma = \alpha - \beta \pmod{26}$,
+e entregue $\beta$ para $P_1$ e $\gamma$ para $P_2$.
+Então,
+para reconstruir o segredo original,
+basta computar
+\begin{equation*}
+    \alpha = \beta + \gamma \pmod{26}.
+\end{equation*}
+
+Por exemplo,
+digamos que a sequência de valores aleatórios gere a palavra
+\texttt{RETUPMOC};
+esta é a ``fatia'' que será entregue a $P_1$.
+Para calcular a parte de $P_2$,
+fazemos
+\begin{align*}
+    \mathtt C - \mathtt R &= \mathtt L \pmod{26} \\
+    \mathtt U - \mathtt E &= \mathtt Q \pmod{26} \\
+    \mathtt S - \mathtt T &= \mathtt Y \pmod{26} \\
+    \vdots \quad & \quad \vdots
+\end{align*}
+Ao final,
+teremos a parte de $P_2$: \texttt{LQZZZRUM}.
+Para reconstruir o segredo,
+basta somar as duas partes,
+letra por letra,
+módulo $26$.
+(Usando dados binários,
+usaríamos a operação ou-exclusivo.)
+
 \section{Esquema de Shamir}
 \section{Limitações inerentes ao esquema}
 \section{Esquema de Pinch}
