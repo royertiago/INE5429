@@ -572,6 +572,122 @@ mas a operação de invalidar uma das quotas
 não exige modificação das demais quotas,
 apenas do quadro de avisos.
 
+\section{Trabalho prático}
+
+A ideia é construir um conjunto de ferramentas de linha de comando
+que implemente o esquema de Pinch.
+
+O dealer terá acesso a um arquivo \verb"shares.data",
+que conterá informações sobre as quotas
+(a lista de todos os participantes,
+as quotas, o primo $p$ sobre o qual está sendo construido
+o esquema,
+e um gerador precomputado $g$ para $\mathbb Z_p^*$\footnote{
+    Tipicamente,
+    obter o primeiro gerador $g$ para $\mathbb Z_p^*$
+    é uma tarefa difícil;
+    mas é relativamente fácil obter outros geradores
+    a partir de um gerador inicial.
+}).
+O dealer poderá adicionar e excluir participantes a \verb"shares.data"
+e gerar o painel de avisos \verb"noticeboard.data" para um segredo $S$.
+
+\verb"shares.data" é um arquivo privado;
+\verb"noticeboard.data" pode ser publicado.
+
+Cada participante terá acesso a um arquivo \verb"share.data",
+que conterá seu ID (o índice $i$) e sua quota $s_i$.
+Usando este arquivo e o painel de avisos,
+ele poderá iniciar o processo de reconstrução,
+obtendo dois arquivos.
+O primeiro, \verb"message.data",
+coordenará o processo de reconstrução,
+especificando a ordem em que as quotas devem ser juntadas.
+Este arquivo pode circular livremente pela rede.
+O segundo, \verb"r.data",
+conterá a inversa modular do número aleatório $r$,
+usado para que $P_1$ não precise revelar $g_X^{s_1}$ abertamente.
+Este arquivo deve ser mantido em segredo pelo primeiro usuário.
+Os demais apenas modificarão \verb"message.data",
+juntando suas quotas.
+
+\subsection{Exemplo de execução}
+
+O seguinte script contém uma sequência de comandos
+que poderá ser feita pelos programas desenvolvidos.
+
+\begin{verbatim}
+# Constrói o arquivo shares.data,
+# inicialmente sem usuários,
+# com o primo p=691 e o gerador escolhido 3.
+$ pinch-dealer shares.data --prime 691 \
+  --generator 3
+
+# Adiciona o usuário 1.
+# Isso cria o arquivo share1.data,
+# que deve ser enviado para o usuário 1
+# por meio de algum canal seguro.
+$ pinch-dealer shares.data --add share1.data
+
+# Adiciona mais usuários.
+$ pinch-dealer shares.data --add share2.data
+$ pinch-dealer shares.data --add share3.data
+$ pinch-dealer shares.data --add share4.data
+$ pinch-dealer shares.data --add share5.data
+
+# Constroi o quadro de avisos no arquivo
+# usando um esquema de limiar (3, 5).
+# O segredo escolhido é 189.
+# Este segredo não é armazenado diretamente,
+# apenas "embaralhado" no painel de avisos.
+$ pinch-dealer shares.data --threshold 2 \
+  --secret 189 --noticeboard noticeboard.data
+
+# Os usuários 1, 2 e 5 reconstruirão S.
+# O usuário 1 inicia a reconstrução.
+# Este comando criará dois arquivos.
+# message.data conterá a mensagem que será
+# passada para os próximos usuários.
+# r.data conterá a inversa do número aleatório
+# r, informação necessária para que
+# o usuário 1 finalize a reconstrução.
+# O arquivo message.data pode circular
+# livremente pela rede; r.data deve ser
+# mantido secreto pelo usuário 1.
+$ pinch-user share1.data --reconstruct \
+  noticeboard.data message.data r.data \
+  --users 2 5
+Generated message.data.
+Send this file to the "user 2" to continue.
+
+# Os usuários 2 e 5 avançam a reconstrução,
+# cada um contribuindo com sua quota.
+$ pinch-user share2.data --join message.data
+Joined your share to message.data.
+Send this modified file to "user 5" to continue.
+
+$ pinch-user share5.data --join message.data
+Joined your share to message.data.
+Send this modified file back to "user 1"
+to finish.
+
+$ pinch-user --finish-reconstruction \
+  message.data r.data
+Secret 189 reconstructed.
+
+# O dealer pode livremente adicionar e remover
+# membros do arquivo shares.data,
+# bastando atualizar o painel de avisos após.
+# Neste caso, o dealer adicionou o usuário 6,
+# removeu o usuário 2,
+# e reconstruiu o quadro de avisos
+# usando 196 como o novo segredo.
+$ pinch-dealer shares.data --add share6.data
+$ pinch-dealer shares.data --remove 2
+$ pinch-dealer shares.data --threshold 2 \
+  --secret 196 --noticeboard noticeboard.data
+\end{verbatim}
+
 \bibliographystyle{plain}
 \bibliography{bibliografia}
 
