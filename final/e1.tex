@@ -266,7 +266,64 @@ sem erros de arredondamento.
     quotas.
 \end{proof}
 
-\section{Limitações inerentes ao esquema}
+\section{Características do esquema de Shamir}
+
+A despeito de ter sido um dos primeiros esquemas propostos,
+o esquema de Shamir possui várias qualidades importantes.
+
+O esquema é incondicionalmente seguro\footnote{
+    Os artigos (em inglês)
+    se referem a esta propriedade como
+    ``\emph{information-theoretic} secure'';
+    isto é,
+    o protocolo é seguro do ponto de vista da teoria da informação.
+}
+\cite{Krawczyk1993};
+quer dizer,
+um atacante com $t-1$ quotas do segredo,
+mesmo que possua poder computacional infinito,
+não possui vantagem sobre um atacante com nenhuma quota do segredo.
+
+O tamanho das quotas é aproximadamente do mesmo tamanho do segredo.
+Se a informação $x_i$ do par $(x_i, y_i)$ for pública,
+todas as quotas do segredo $s$ passam a pertencer ao domínio de $s$,
+que é o que caracteriza um \emph{esquema ideal}~\cite{Brickell1990}.
+\footnote{
+    Sob a exigência de ser incondicionalmente seguro,
+    as quotas precisam ter, no mínimo,
+    o tamanho do segredo a ser compartilhado.
+    Krawczyk~\cite{Krawczyk1993} construiu um esquema de limiar $(t, n)$
+    que é \emph{computacionalmente} seguro
+    tal que, para um segredo $s$,
+    as quotas possuem tamanho $O(|s|/m)$.
+    (Ser computacionalmente seguro
+    significa ter sua segurança
+    baseada na intratabilidade de algum problema computacional;
+    isto é,
+    o protocolo pode ser vulnerável a um ataque de força-bruta,
+    mas isso é o melhor que pode ser feito.)
+}
+
+Além disso,
+caso o dealer ainda esteja disponível,
+novos participantes podem ser adicionados;
+basta gerar um novo par $(x_{n+1}, p(x_{n+1})$
+para que um novo participante possua sua quota do segredo.
+Shamir~\cite{Shamir1979} observa que,
+ao menos em teoria,
+é possível remover uma quota $s_i$ sem comprometer a estrutura de acesso;
+entretanto,
+o participante $P_i$ precisaria garantir a destruição de $s_i$
+--- nem mesmo ele pode ter acesso a $s_i$ depois de destruída.
+
+Entretanto,
+se estamos expulsando o participante $P_i$ do esquema,
+não parece ser uma hipótese razoável
+assumir que $P_i$ irá pacificamente destruir $s_i$.
+Podemos querer removê-lo do esquema
+por descobrir que aquele nó foi comprometido;
+precisamos de algum mecanismo externo para invalidar a quota $s_i$.
+
 \section{Esquema de Pinch}
 \section{Limitações do esquema de Pinch}
 \bibliographystyle{plain}
