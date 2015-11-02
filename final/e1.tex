@@ -326,6 +326,35 @@ precisamos de algum mecanismo externo para invalidar a quota $s_i$.
 
 \section{Esquema de Pinch}
 \section{Limitações do esquema de Pinch}
+
+O maior problema do esquema de Pinch é o quadro de avisos.
+Para $n$ participantes,
+o quadro pode ter tamanho proporcional a $2^n$
+para estruturas de acesso específicas.
+Existem propostas que tentam remediar isso,
+mas sempre um novo problema é introduzido.
+
+Valls, Villar e Márquez~\cite{VallsVillarMarqez1999}
+constroem um protocolo de segredo compartilhado
+que permite alteração na estrutura de acesso
+usando apenas $O(n)$ de espaço para o quadro de avisos.
+Entretanto,
+a geração deste quadro de avisos é baseada
+num protocolo de segredo compartilhado de Brickell,
+a construção do espaço vetorial\footnote{
+    Do inglês \emph{vector space construction}.
+}
+\cite{Brickell1990}.
+O livro de Stinson~\cite[p.~499]{Stinson2006} de 2006
+afirma que, para estruturas de acesso arbitrárias,
+a tarefa de construir estes espaços vetoriais
+só é feita por tentativa e erro
+--- ou seja, este problema é intratável.
+O artigo de Atici~\cite{Atici2013} de 2013
+apresenta dois algoritmos para casos particulares;
+mas, além de nenhum deles resolver o problema do esquema de limiar $(t, n)$,
+Atici ainda diz que o caso geral requer força-bruta.
+
 \bibliographystyle{plain}
 \bibliography{bibliografia}
 
