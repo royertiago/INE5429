@@ -324,6 +324,53 @@ Podemos querer removê-lo do esquema
 por descobrir que aquele nó foi comprometido;
 precisamos de algum mecanismo externo para invalidar a quota $s_i$.
 
+Todos os algoritmos analisados (\cite{
+    VallsVillarMarquez1999,
+    BlakleyBlakleyChanMassey1993,
+    ChenGollmanMitchellWild1997,
+    Sun1999,
+    Cachin1995,
+    Pinch1996%
+})
+adicionam informação pública ao protocolo
+por meio de um \emph{quadro de avisos}\footnote{
+    Do inglês \emph{noticeboard}.
+}.
+Para obter acesso ao segredo,
+além de juntar $t$ quotas,
+é necessário buscar alguma informação no quadro de avisos
+para executar o algoritmo de reconstrução.
+Caso seja necessário invalidar as quotas,
+basta alterar correspondentemente o quadro de avisos.
+
+Observe que a existência de um quadro de avisos
+é necessária para a invalidação de quotas;
+caso contrário,
+um conjunto de $t$ participantes
+poderia simplesmente usar suas quotas originais
+(que não foram destruídas)
+para obter acesso ao segredo.
+De fato,
+em alguns casos,
+é necessário alterar o segredo $s$:
+como a informação do quadro de avisos é pública,
+qualquer membro poderia manter um banco de dados com todo o histórico do quadro,
+possibilitando a reconstrução de $s$
+mesmo após o quadro ser alterado.
+
+Cachin~\cite{Cachin1995} descreve um possível caso de uso para este algoritmo.
+Por exemplo,
+um banco ou um laboratório
+podem ter uma área de segurança máxima,
+em que ao menos um gerente e dois funcionários são necessários para acessá-lo.
+Caso um gerente seja demitido,
+é necessário trocar a chave de segurança desta área
+(isto é, alterar o segredo $s$);
+mas é possível fazer isso sem precisar alterar as quotas dos demais funcionários.
+O esquema de Cachin,
+que será apresentado a seguir,
+permite esta alteração.
+
 \section{Esquema de Cachin}
 \section{Outros esquemas que permitem remoção de membros}
 
