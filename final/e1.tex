@@ -477,6 +477,43 @@ proposta por Pinch~\cite{Pinch1996}.
     \end{enumerate}
 \end{definition}
 
+\subsection{Análise do protocolo}
+
+A segurança deste protocolo é analisada por Cachin~\cite[p.~5]{Cachin1995}
+e Pinch~\cite[p.~4]{Pinch1996}.
+Em essência,
+este esquema se baseia na intratabilidade do logaritmo discreto
+e da inversão da função $f$;
+não é possível extrair informação usando só o quadro de avisos
+e um subconjunto não autorizado pela estrutura de acesso,
+pois falta informação oculta atrás da função de mão única $f$,
+e não é possível extrair informação durante a troca de mensagens para a reconstrução
+pois isso equivaleria a resolver o logaritmo discreto.
+
+Observe que podemos alterar a estrutura de acesso
+e o segredo $S$
+modificando apenas o quadro de avisos;
+basta repetir a etapa de geração do painel de avisos
+com as mesmas quotas geradas na primeira etapa.
+
+Para adicionar um novo membro $P_{n+1}$,
+basta gerar uma nova quota $s_{n+1}$,
+que será usada futuramente pelo dealer
+para a construção dos valores $T_X$
+para os conjuntos autorizados que englobem $P_{n+1}$.
+
+E, para excluir um membro $P_i$,
+basta destruir toda a informação no quadro de avisos
+sobre conjuntos autorizados que englobem $P_i$.
+(Isto é,
+teremos uma estrutura de acesso $\Gamma'$, em que
+\begin{equation*}
+    \Gamma' = \{X \in \Gamma \mid P_i \notin X\}.)
+\end{equation*}
+Caso a quota $s_i$ seja comprometida,
+basta combinar esta alteração de $\Gamma$ com uma troca de chave;
+as quotas $s_j$ para $j \neq i$ não serão afetadas.
+
 \section{Outros esquemas que permitem remoção de membros}
 
 O maior problema do esquema de Cachin é o quadro de avisos,
