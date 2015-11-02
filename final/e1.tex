@@ -334,7 +334,7 @@ Todos os algoritmos analisados (\cite{
 })
 adicionam informação pública ao protocolo
 por meio de um \emph{quadro de avisos}\footnote{
-    Do inglês \emph{noticeboard}.
+    Do inglês \emph{notice board}.
 }.
 Para obter acesso ao segredo,
 além de juntar $t$ quotas,
@@ -479,10 +479,17 @@ proposta por Pinch~\cite{Pinch1996}.
 
 \section{Outros esquemas que permitem remoção de membros}
 
-O maior problema do esquema de Cachin é o quadro de avisos.
+O maior problema do esquema de Cachin é o quadro de avisos,
+que é do tamanho da estrutura de acesso $\Gamma$.
 Para $n$ participantes,
 o quadro pode ter tamanho proporcional a $2^n$
-para estruturas de acesso específicas.
+para estruturas de acesso específicas;
+por exemplo,
+um esquema de limiar $(t, n)$
+gera uma estrutura de acesso $\Gamma$
+cuja base, $\Gamma_0$,
+possui tamanho $\binom n t$,
+que é proporcional a $n^t$ caso $n$ seja significativamente maior que $t$.
 Existem propostas que tentam remediar isso,
 mas sempre um novo problema é introduzido.
 
