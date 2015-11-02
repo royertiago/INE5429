@@ -355,6 +355,20 @@ apresenta dois algoritmos para casos particulares;
 mas, além de nenhum deles resolver o problema do esquema de limiar $(t, n)$,
 Atici ainda diz que o caso geral requer força-bruta.
 
+Outra abordagem para o problema é explorada por Blakley et al.%
+~\cite{BlakleyBlakleyChanMassey1993}.
+Eles descrevem o conceito de \emph{esquema de limiar com $L$ desregistros}%
+\footnote{
+    Do inglês \emph{threshold scheme with $L$-fold disenrollment capability}.
+};
+a ideia é que este esquema
+seja capaz de invalidar até $L$ quotas diferentes após a distribuição inicial.
+Blakley et al.\ não exigem que as quotas sejam imutáveis,
+apenas que as mudanças das quotas possam ser transmitidas através de canais inseguros.
+Neste artigo,
+são estudados três esquemas com esta capacidade,
+sob esta permissão de alterar as quotas dos participantes.
+
 \bibliographystyle{plain}
 \bibliography{bibliografia}
 
