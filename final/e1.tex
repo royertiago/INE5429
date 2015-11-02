@@ -371,7 +371,112 @@ O esquema de Cachin,
 que será apresentado a seguir,
 permite esta alteração.
 
-\section{Esquema de Cachin}
+\section{Esquema de Cachin-Pinch \cite{Pinch1996}}
+
+\begin{definition}
+    Seja $\mathcal P = \{P_1, \dots, P_n\}$ um conjunto de participantes.
+    Uma \emph{estrutura de acesso} sobre $\mathcal P$
+    é um conjunto $\Gamma \subseteq 2^\mathcal P$
+    tal que,
+    se $X \in \Gamma$ e $X \subseteq Y$,
+    então $Y \in \Gamma$
+    --- isto é, $\Gamma$ é um conjunto monótono.
+    Os elementos de $\Gamma$ são os conjuntos qualificados a reconstruir o segredo.
+
+    A base de $\Gamma$, denotada por $\Gamma_0$,
+    é o subconjunto de $\Gamma$
+    que contém os conjuntos qualificados mínimos;
+    isto é,
+    \begin{equation*}
+        \Gamma_0 = \{X \in \Gamma \mid \neg \exists Y \in \Gamma : Y \subsetneq X \}.
+    \end{equation*}
+\end{definition}
+
+Todo esquema de limiar $(t, n)$
+descreve uma estrutura de acesso
+\begin{equation*}
+    \Gamma = \{X \subseteq \mathcal P \mid |X| \geq t\};
+\end{equation*}
+portanto,
+estruturas de acesso são uma generalização dos esquemas de limiar.
+O esquema de Cachin lida diretamente com estruturas de acesso.
+
+Observe que a base $\Gamma_0$ de $\Gamma$ descreve $\Gamma$ unicamente
+(e vice-versa).
+O esquema de Cachin primeiro distribui uma quota do segredo para cada participante,
+e depois posta, no quadro de avisos, um valor $T_X$
+para cada conjunto autorizado $X \in \Gamma_0$.
+Este valor será utilizado posteriormente pelos integrantes do grupo $X$
+para reconstruir o segredo.
+
+O esquema de Cachin assume a existência de uma função $f$ de via única;
+isto é,
+uma função $f$ tal que computar $y = f(x)$ a partir de $x$ é ``fácil'',
+mas computar $x$ a partir de $y = f(x)$ é ``difícil''.
+Podemos citar a exponenciação modular sobre $\mathbb Z_p$
+como uma função de via única,
+pois o cálculo da exponenciação pode ser feito em tempo cúbico,
+enquanto que inverter a exponenciação
+corresponde a resolver uma instância do logaritmo discreto.
+
+Iremos mostrar uma variação do esquema de Cachin,
+proposta por Pinch~\cite{Pinch1996}.
+
+\begin{definition}[Esquema de Cachin-Pinch]
+    Seja $p$ um número primo grande.
+    O segredo $S$ será um elemento de $\mathbb Z_p^*$.
+
+    \textbf{Etapa 1:} distribuição das quotas.
+    Com cada participante $P_i \in \mathcal P$,
+    o dealer combina secretamente uma quota $s_i$.
+    Esta quota pode ser gerada pelo dealer
+    ou ela pode ser acordada através do protocolo Diffie-Hellman,
+    por exemplo.
+
+    \textbf{Etapa 2:} geração do painel de avisos.
+    Para cada conjunto $X \in \Gamma_0$,
+    o dealer escolhe um gerador $g_X$ para o conjunto $\mathbb Z_p^*$,
+    computa os valores
+    \begin{align*}
+        V_X &= g_X^{\prod_{P_i \in X} s_i} \\
+        T_X &= S - f( V_X )
+    \end{align*}
+    e disponibiliza o par $(g_X, T_X)$
+    no quadro de avisos.
+
+    \textbf{Etapa 3:} reconstrução do segredo.
+    Suponha que os participantes do grupo $X = \{P_1, \dots, P_k\}$
+    se reúnam para reconstruir o segredo.
+    \begin{enumerate}
+        \item O participante $P_1$ obtém o valor $g_X$ do quadro de avisos,
+            escolhe aleatoriamente algum número $r \in \mathbb Z_p^*$
+            computa $g_X^{r s_1}$,
+            e repassa para $P_2$.
+            ($r$ apenas existe para que $P_1$ não precise expor $g_X^{s_1}$
+            a um canal de comunicação inseguro.)
+
+        \item Em sequência, cada participante $P_i$ ($1 < i \leq k$)
+            receberá $g_X^{r * \prod_{1 \leq j < i} s_j}$ de $P_{i-1}$,
+            elevará este valor a $s_i$
+            (obtendo $g_X^{r * \prod_{1 \leq j \leq i} s_j}$),
+            e passará para $P_{i+1}$.
+            ($P_k$ deverá repassar para $P_1$.)
+
+        \item Como $r$ é inversível,
+            existe um número $w$ tal que $rw \equiv 1 \pmod p$
+            (que pode ser computado eficiemente usando Euclides extendido).
+            Portanto,
+            assim que $P_1$ recebeber
+            $g_X^{r * \prod_{1 \leq j \leq k} s_j}$,
+            basta elevar este valor a $w$ para obter o valor $V_X$.
+            Então, em nome do grupo,
+            $P_1$ resgata $T_X$ do quadro de avisos e computa
+            \begin{equation*}
+                S = T_X + f(V_X).
+            \end{equation*}
+    \end{enumerate}
+\end{definition}
+
 \section{Outros esquemas que permitem remoção de membros}
 
 O maior problema do esquema de Cachin é o quadro de avisos.
