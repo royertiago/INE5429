@@ -94,4 +94,73 @@ Agora,
             &= 35 \pmod{551}.
 \end{align*}
 
+\textbf{
+    Questão 2 ---
+    Considere o algoritmo de acordo de chaves de Diffie-Helamnn (DH)
+    e seja $v$ o número primo parâmetro global do algoritmo.
+}
+
+\textbf{
+    (a)  Determine os outros parâmetros públicos necessários ao DH.
+}
+
+Precisamos achar uma raíz primitiva de $101$.
+$\phi(101) = 100 = 2^2 * 5^2$;
+todas as raízes primitivas $\alpha$ satisfarão
+\begin{align*}
+    \alpha^{50} &\neq 1 \pmod{101};
+    \alpha^{20} &\neq 1 \pmod{101}
+\end{align*}
+
+Iremos testar todos os números entre $2$ e $100$ até achar uma raíz primitiva.
+Comecemos com o candidato $\alpha = 2$.
+
+\begin{tabular}{r r r r}
+    $i$ & $2^i$ & $(2^{2^{i-1}})^2$ & $2^{2^i} \bmod 101$ \\
+    \toprule
+    0 & 1 & - & 2 \\
+    1 & 2 & $2 \times 2 = 4$ & 4 \\
+    2 & 4 & $4 \times 4 = 16$ & 16 \\
+    3 & 8 & $16 \times 16 = 256$ & 54 \\
+    4 & 16 & $54 \times 54 = 2916$ & 88 \\
+    5 & 32 & $88 \times 88 = 7744$ & 68 \\
+    6 & 64 & $68 \times 68 = 4624$ & 79 \\
+\end{tabular}
+
+Agora,
+\begin{align*}
+    2^{50} &= 2^{32} * 2^{16} * 2^2 \pmod{101} \\
+           &= 68 * 88 * 4 \pmod{101} \\
+           &= 100 \pmod{101} \\
+    2^{20} &= 2^{16} * 2^4 \pmod{101} \\
+           &= 88 * 16 \pmod{101} \\
+           &= 95 \pmod{101}
+\end{align*}
+
+Portanto, o candidato $\alpha = 2$ é uma raíz primitiva módulo $101$.
+Assim,
+os parâmetros públicos do algoritmo são $v = 101$ e $\alpha = 2$.
+
+\textbf{
+    (b)  Sabendo que as chaves secretas de Alice e Beto são $X_A = 5$
+    $X_B = 50$, respectivamente,
+    proceda ao acordo de chaves.
+}
+
+Alice calculará
+\begin{equation*}
+    Y_A = 2^{X_A} = 2^5 = 2^4 * 2 = 16*2 = 32 \pmod{101}.
+\end{equation*}
+Beto calculará
+\begin{equation*}
+    Y_B = 2^{X_B} = 2^{50} = 100 \pmod{101}.
+\end{equation*}
+($2^{50}$ foi calculado durante o calculo das raízes primitivas.)
+
+Após Alice e Beto trocarem $Y_A$ e $Y_B$, eles calculam
+\begin{align*}
+    K = Y_B^{X_A} = 100^5 = 100^2 * 100^2 * 100 = 100 \pmod{101}; \\
+    K = Y_A^{X_B} = 32^{50} = (2^5)^{50} = (2^{50})^5 = 100 \pmod{101}.
+\end{align*}
+
 \end{document}
