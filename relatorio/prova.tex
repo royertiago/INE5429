@@ -1,0 +1,97 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{booktabs}
+
+\begin{document}
+
+\title{Resolução da prova}
+\author{Tiago Royer}
+\date{4 de novembro de 2015}
+\maketitle
+
+Meu número de matrícula é $12100776$,
+portanto, de acordo com a tabela,
+$p = 19$ e $v = 101$.
+
+\textbf{
+    Questão 1 ---
+    Considere que você deseja cifrar e decifrar mensagens de até 9 bits,
+    de forma o mais eficiente possível,
+    usando o algoritmo RSA.
+}
+
+\textbf{
+    (a) Nesse cenário, gere um par de chaves RSA,
+    onde um dos primos deve ser $p$
+    e o expoente público deve ser $13$.
+}
+
+Para cifrar números de até $9$ bits,
+é necessário que o módulo $n$ do algoritmo RSA
+seja maior ou igual a $2^9-1 = 511$.
+O primeiro primo $q$ tal que
+\begin{equation*}
+    pq \geq 511
+\end{equation*}
+é $q = 29$,
+portanto escolheremos este número para ser $q$.
+
+O expoente público é $13$;
+precisamos achar seu inverso módulo $\phi(pq) = (19-1)*(29-1) = 504$.
+Aplicando o Euclides extendido, temos
+\begin{align*}
+    10 &= 1*504 - 38*13 \\
+    3 &= 1*13 - 1*10 \\
+    1 &= 1*10 - 3*3; \\
+    1 &= 1*10 - 3*(1*13 - 1*10) \\
+    1 &= 4*10 - 3*13 \\
+    1 &= 4*(1*504 - 38*13) - 3*13 \\
+    1 &= 4*504 - 155*13
+\end{align*}
+
+Portanto,
+\begin{align*}
+    (-155) * 13 &= 1 \pmod {504} \\
+    349 * 13 &= 1 \pmod {504}
+\end{align*}
+
+Assim,
+calculamos que $349$ é a inversa modular de $13$;
+portanto, a chave privada correspondente à chave pública $(13, 551)$ é
+\begin{equation*}
+    (349, 551).
+\end{equation*}
+
+\textbf{
+    (b) Usando a chave privada, cifre a mensagem $M = 5$.
+}
+
+$349 = 2^8 + 2^6 + 2^4 + 2^3 + 2^2 + 2^0$.
+Calculando os expoentes $5^{2^i} \bmod 551$ para $0 \leq i \leq 8$,
+temos
+
+\begin{tabular}{r r r r}
+    $i$ & $2^i$ & $(5^{2^{i-1}})^2$ & $5^{2^i} \bmod 551$ \\
+    \toprule
+    0 & 1 & - & 5 \\
+    1 & 2 & $5 \times 5 = 25$ & 25 \\
+    2 & 4 & $25 \times 25 = 625$ & 74 \\
+    3 & 8 & $74 \times 74 = 5476$ & 517 \\
+    4 & 16 & $517 \times 517 = 267289$ & 54 \\
+    5 & 32 & $54 \times 54 = 2916$ & 161 \\
+    6 & 64 & $161 \times 161 = 25921$ & 24 \\
+    7 & 128 & $24 \times 24 = 576$ & 25 \\
+    8 & 256 & $25 \times 25 = 625$ & 74 \\
+\end{tabular}
+\\[1em]
+Agora,
+\begin{align*}
+    5^{349} &= 5^{256} * 5^{64} * 5^{16} * 5^8 * 5^4 * 5 \pmod{551} \\
+            &= 74 * 24 * 54 * 517 * 74 * 5 \pmod{551} \\
+            &= 35 \pmod{551}.
+\end{align*}
+
+\end{document}
