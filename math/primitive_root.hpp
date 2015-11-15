@@ -5,6 +5,29 @@
 #include "math/factor.hpp"
 
 namespace math {
+    /* Returns true if a is a primitive root modulo p,
+     * and false otherwise.
+     * p is assumed to be a prime;
+     * factors should be the factor list of p-1 = phi(p).
+     */
+    template< typename T >
+    bool is_primitive_root_modulo_p( T a, T p, const factor::factor_list<T> & factors ) {
+        if( a == 0 )
+            return false;
+
+        for( const auto & pair : factors ) {
+            /* It can be shown that a is a primitive root modulo p
+             * if and only if, for every prime factor f of p-1,
+             *  a^((p-1)/f) != 1 (mod p).
+             * (The only exception is a == 0, which we dealt above.)
+             */
+            T exponent = (p-1)/pair.first;
+            if( pow_mod( a, exponent, p ) == 1 )
+                return false;
+        }
+        return true;
+    }
+
     /* Returns the smallest primitive root modulo p,
      * assuming p is prime,
      * or 0 if no primitive root could be found.
@@ -19,29 +42,11 @@ namespace math {
         if( p == T(2) )
             return T(1);
 
-        T phi = p - 1;
-        std::vector<T> exponents;
-        for( auto pair : math::factor::factor( phi ) )
-            exponents.push_back( phi / pair.first );
-        /* It can be shown that a number m is a primitive root modulo p
-         * if and only if, for every factor f of p-1, m^((p-1)/f) != 1 (mod p).
-         * Thus, we need to raise every candidate to (p-1)/f
-         * for every factor f of p-1.
-         * The vector exponents just precompute this list.
-         */
+        auto factors = math::factor::factor( p-1 );
 
-        T power;
-        for( T candidate(2); candidate < p; candidate++ ) {
-            for( const auto & exponent : exponents )
-                if( math::pow_mod( candidate, exponent, p ) == 1 )
-                    // The candidate failed the test.
-                    goto next_candidate;
-
-            // Found a primitive root!
-            return candidate;
-
-        next_candidate:; // This label functions as a 'continue' command.
-        }
+        for( T candidate(2); candidate < p; candidate++ )
+            if( is_primitive_root_modulo_p(candidate, p, factors) )
+                return candidate;
 
         // No primitive roots found; this will never happen for prime p.
         return T(0);

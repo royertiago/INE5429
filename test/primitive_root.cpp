@@ -8,6 +8,27 @@ std::vector<int> all_primitive_roots_sorted( int p, int a ) {
     return vec;
 }
 
+TEST_CASE( "Is primitive root modulo p", "[math]" ) {
+    auto factors = math::factor::factor(16);
+    CHECK_FALSE( math::is_primitive_root_modulo_p( 0, 17, factors ) );
+    CHECK_FALSE( math::is_primitive_root_modulo_p( 1, 17, factors ) );
+    CHECK_FALSE( math::is_primitive_root_modulo_p( 2, 17, factors ) );
+    CHECK      ( math::is_primitive_root_modulo_p( 3, 17, factors ) );
+    CHECK_FALSE( math::is_primitive_root_modulo_p( 4, 17, factors ) );
+    CHECK      ( math::is_primitive_root_modulo_p( 5, 17, factors ) );
+    CHECK      ( math::is_primitive_root_modulo_p( 6, 17, factors ) );
+    CHECK      ( math::is_primitive_root_modulo_p( 7, 17, factors ) );
+    CHECK_FALSE( math::is_primitive_root_modulo_p( 8, 17, factors ) );
+    CHECK_FALSE( math::is_primitive_root_modulo_p( 9, 17, factors ) );
+    CHECK      ( math::is_primitive_root_modulo_p( 10, 17, factors ) );
+    CHECK      ( math::is_primitive_root_modulo_p( 11, 17, factors ) );
+    CHECK      ( math::is_primitive_root_modulo_p( 12, 17, factors ) );
+    CHECK_FALSE( math::is_primitive_root_modulo_p( 13, 17, factors ) );
+    CHECK      ( math::is_primitive_root_modulo_p( 14, 17, factors ) );
+    CHECK_FALSE( math::is_primitive_root_modulo_p( 15, 17, factors ) );
+    CHECK_FALSE( math::is_primitive_root_modulo_p( 16, 17, factors ) );
+}
+
 TEST_CASE( "Primitive roots modulo p", "[math]" ) {
     CHECK( math::primitive_root_modulo_p( 2 ) == 1 );
     CHECK( math::primitive_root_modulo_p( 3 ) == 2 );
