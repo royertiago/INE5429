@@ -14,6 +14,7 @@ diffie_hellman
 factor
 fermat_primality_test
 generate_prime_number
+pinch_dealer
 primitive_root
 rsa
 math/prime_list/generate_list
