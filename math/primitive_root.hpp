@@ -76,6 +76,20 @@ namespace math {
         return primitive_roots;
     }
 
+    /* Generates a random primitive root modulo p,
+     * given a known pririmitive root a.
+     */
+    template< typename T, typename RNG >
+    T random_primitive_root_modulo_p( T p, T a, RNG & rng ) {
+        T phi = p-1;
+        int bits = mpz_sizeinbase( phi.get_mpz_t(), 2 );
+        T power = rng::gmp_generate( rng, bits );
+        while( math::gcd( power, phi ) != T(1) )
+            power = rng::gmp_generate( rng, bits );
+
+        return math::pow_mod( a, power, p );
+    }
+
 } // namespace math
 
 #endif // MATH_PRIMITIVE_ROOT_HPP

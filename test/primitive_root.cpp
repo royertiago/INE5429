@@ -1,6 +1,7 @@
 #include "math/primitive_root.hpp"
 #include <algorithm>
 #include <catch.hpp>
+#include "random/xorshift.hpp"
 
 std::vector<int> all_primitive_roots_sorted( int p, int a ) {
     auto vec = math::all_primitive_roots_modulo_p( p, a );
@@ -64,4 +65,22 @@ TEST_CASE( "All primitive roots modulo p", "[math]" ) {
         CHECK( all_primitive_roots_sorted( 53, a ) == roots53 );
     for( auto a : roots71 )
         CHECK( all_primitive_roots_sorted( 71, a ) == roots71 );
+}
+
+TEST_CASE( "Random primitive roots", "[math]" ) {
+    rng::xorshift rng(1, 2, 3, 4); // Random fixed seed
+    auto factors = math::factor::factor(mpz_class(16));
+    std::vector<mpz_class> roots17 = {3, 5, 6, 7, 10, 11, 12, 14};
+    for( int i = 0; i < 100; i++ ) {
+        auto generator = math::random_primitive_root_modulo_p<mpz_class>( 17, 3, rng );
+        CHECK( math::is_primitive_root_modulo_p<mpz_class>( generator, 17, factors ) );
+
+        // Test if all generators are found
+        for( int i = 0; i < roots17.size(); i++ )
+            if( roots17[i] == generator ) {
+                roots17.erase( roots17.begin() + i );
+                break;
+            }
+    }
+    CHECK( roots17.size() == 0 );
 }
