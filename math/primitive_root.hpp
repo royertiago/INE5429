@@ -42,7 +42,7 @@ namespace math {
         if( p == T(2) )
             return T(1);
 
-        auto factors = math::factor::factor( p-1 );
+        auto factors = math::factor::factor( T(p-1) );
 
         for( T candidate(2); candidate < p; candidate++ )
             if( is_primitive_root_modulo_p(candidate, p, factors) )
