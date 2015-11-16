@@ -32,3 +32,29 @@ TEST_CASE( "group_data failed read", "[pinch]" ) {
     CHECK_FALSE( stream >> data );
     CHECK_FALSE( stream >> data );
 }
+
+TEST_CASE( "noticeboard input and output", "[pinch]" ) {
+    pinch::noticeboard<int> board;
+    std::stringstream stream;
+
+    stream.str( "2 19\n25 36 2 1 2\n78 89 2 1 3\n" );
+    CHECK( stream >> board );
+    CHECK( board.generator == 2 );
+    CHECK( board.prime_modulo == 19 );
+    REQUIRE( board.groups.size() == 2 );
+    CHECK( board.groups[0].group_generator == 25 );
+    CHECK( board.groups[0].group_value == 36 );
+    REQUIRE( board.groups[0].group.size() == 2 );
+    CHECK( board.groups[0].group[0] == 1 );
+    CHECK( board.groups[0].group[1] == 2 );
+    CHECK( board.groups[1].group_generator == 78 );
+    CHECK( board.groups[1].group_value == 89 );
+    REQUIRE( board.groups[1].group.size() == 2 );
+    CHECK( board.groups[1].group[0] == 1 );
+    CHECK( board.groups[1].group[1] == 3 );
+
+    stream.str("");
+    stream.clear();
+    stream << board;
+    CHECK( stream.str() == "2 19\n25 36 2 1 2\n78 89 2 1 3\n" );
+}

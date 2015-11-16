@@ -19,6 +19,11 @@
  * File format (group_data):
  * The values group_generator, group_value, group.size(), and the elements in group
  * all appear separated by a single whitespace.
+ *
+ * File format (noticeboard):
+ * The generator and prime_modulo (parameters for f) in a single line,
+ * separated by whitespace;
+ * then, one group_data per line.
  */
 
 #include <iostream>
@@ -30,6 +35,12 @@ namespace pinch {
         T group_generator;
         T group_value;
         std::vector<int> group;
+    };
+
+    template< typename T >
+    struct noticeboard {
+        T generator, prime_modulo; // Parameters for the function f
+        std::vector< group_data<T> > groups;
     };
 
     template< typename T >
@@ -53,6 +64,25 @@ namespace pinch {
             << ' ' << data.group.size();
         for( int i = 0; i < data.group.size(); i++ )
             os << ' ' << data.group[i];
+        return os;
+    }
+
+    template< typename T >
+    std::istream & operator>>( std::istream & is, noticeboard<T>& board ) {
+        is >> board.generator >> board.prime_modulo;
+        group_data<T> data;
+        while( is >> data )
+            board.groups.push_back( data );
+
+        is.clear(); // TODO: maybe not a good idea
+        return is;
+    }
+
+    template< typename T >
+    std::ostream & operator<<( std::ostream & os, const noticeboard<T>& board ) {
+        os << board.generator << ' ' << board.prime_modulo << '\n';
+        for( const auto & data : board.groups )
+            os << data << '\n';
         return os;
     }
 }
