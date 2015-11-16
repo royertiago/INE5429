@@ -78,16 +78,18 @@ namespace command_line {
 int main( int argc, char ** argv ) {
     command_line::parse( cmdline::args( argc, argv ) );
 
+    // Set up database and the file
     pinch::dealer_information<mpz_class> database;
-    std::fstream file( command_line::share_database, std::ios::in | std::ios::out );
-
-    if( !command_line::generate_share_database )
-        // Database exists.
-        file >> database;
-
+    std::fstream file;
     if( command_line::generate_share_database ) {
+        file.open( command_line::share_database, std::ios::out | std::ios::trunc );
         database.prime = command_line::prime_number;
         database.generator = command_line::generator;
+    }
+    else {
+        // Database exists.
+        file.open( command_line::share_database, std::ios::in | std::ios::out );
+        file >> database;
     }
 
     // Write database back to the file
