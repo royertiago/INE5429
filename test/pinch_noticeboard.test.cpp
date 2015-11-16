@@ -20,3 +20,15 @@ TEST_CASE( "group_data input and output", "[pinch]" ) {
     stream << data;
     CHECK( stream.str() == "15 5 3 1 2 3" );
 }
+
+TEST_CASE( "group_data failed read", "[pinch]" ) {
+    pinch::group_data<int> data;
+    std::stringstream stream;
+
+    /* All these calls should not throw an exception due to
+     * calling vector.resize with memory garbage. */
+    CHECK_FALSE( stream >> data );
+    CHECK_FALSE( stream >> data );
+    CHECK_FALSE( stream >> data );
+    CHECK_FALSE( stream >> data );
+}

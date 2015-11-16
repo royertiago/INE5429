@@ -35,7 +35,12 @@ namespace pinch {
     template< typename T >
     std::istream & operator>>( std::istream & is, group_data<T> & data ) {
         int size;
-        is >> data.group_generator >> data.group_value >> size;
+        if( !(is >> data.group_generator >> data.group_value >> size) )
+            /* Read/write error.
+             * Must return now to avoid calling vector.resize
+             * with memory garbage. */
+            return is;
+
         data.group.resize( size );
         for( int i = 0; i < size; i++ )
             is >> data.group[i];
