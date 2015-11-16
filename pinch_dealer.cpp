@@ -20,6 +20,13 @@ namespace command_line {
 "    and be kept private.\n"
 "    Multiple calls to --add may be done simultaneously.\n"
 "\n"
+"--remove <N>\n"
+"    Remove the share of the user with the given ID.\n"
+"    The ID is avaliable as the first value of the file that stores the share,\n"
+"    that was generated using the option --add.\n"
+"    To guarantee that the specified user is not able to access the secret,\n"
+"    the noticeboard must be regenerated with another secret.\n"
+"\n"
 "--help\n"
 "    Displays this help and quit.\n"
 ;
@@ -42,6 +49,7 @@ namespace command_line {
     mpz_class generator;
 
     std::vector< std::string > added_users;
+    std::vector< int > removed_users;
 
     void parse( cmdline::args && args ) {
         while( args.size() > 0 ) {
@@ -58,6 +66,12 @@ namespace command_line {
             }
             if( arg == "--add" ) {
                 added_users.push_back( args.next() );
+                continue;
+            }
+            if( arg == "--remove" ) {
+                int n;
+                args.range( 1 ) >> n;
+                removed_users.push_back( n );
                 continue;
             }
             if( arg == "--help" ) {
@@ -92,15 +106,13 @@ int main( int argc, char ** argv ) {
 
     // Set up database and the file
     pinch::dealer_information<mpz_class> database;
-    std::fstream file;
     if( command_line::generate_share_database ) {
-        file.open( command_line::share_database, std::ios::out | std::ios::trunc );
         database.prime = command_line::prime_number;
         database.generator = command_line::generator;
     }
     else {
         // Database exists.
-        file.open( command_line::share_database, std::ios::in | std::ios::out );
+        std::ifstream file( command_line::share_database );
         file >> database;
     }
 
@@ -110,9 +122,18 @@ int main( int argc, char ** argv ) {
         share << database.new_share( rng ) << '\n';
     }
 
-    // Write database back to the file
-    file.clear();
-    file.seekg( 0 );
+    // Remove the requested IDs
+    for( int id : command_line::removed_users )
+        if( !database.remove_share(id) )
+            std::cerr << "Error: user " << id << " not found in the database.\n";
+
+    /* Write database back to the file
+     * We must open a new fstream instead of reusing the one used to read the database
+     * because standard file streams support truncation only on opening,
+     * and the new database could be smaller than the original
+     * due to user removal.
+     */
+    std::ofstream file( command_line::share_database, std::ios::trunc );
     file << database;
 
     return 0;

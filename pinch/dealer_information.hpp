@@ -30,6 +30,15 @@ namespace pinch {
         template< typename RNG >
         share<T> new_share( RNG & );
 
+        /* Remove the share with the specified identifier.
+         * To ensure that the specified user is not able to access the secret,
+         * the noticeboard must be regenerated with another secret
+         * after running this function.
+         *
+         * Returns true if something was removed, and false otherwise.
+         */
+        bool remove_share( int id );
+
     };
 
     template< typename T >
@@ -59,6 +68,16 @@ namespace pinch {
         share<T> new_share{++last_id, T(number % prime)};
         valid_shares.push_back( new_share );
         return new_share;
+    }
+
+    template< typename T >
+    bool dealer_information<T>::remove_share( int id ) {
+        for( int i = 0; i < valid_shares.size(); i++ )
+            if( valid_shares[i].id == id ) {
+                valid_shares.erase( valid_shares.begin() + i );
+                return true;
+            }
+        return false;
     }
 }
 #endif // PINCH_DEALER_INFORMATION_HPP
