@@ -14,6 +14,12 @@ namespace command_line {
 "    Provides a generator for the corresponding prime.\n"
 "    See the option --prime.\n"
 "\n"
+"--add <share>\n"
+"    Add an user to the database and stores its share in the given file name.\n"
+"    This file should be sent through a secure channel to the user,\n"
+"    and be kept private.\n"
+"    Multiple calls to --add may be done simultaneously.\n"
+"\n"
 "--help\n"
 "    Displays this help and quit.\n"
 ;
@@ -27,6 +33,7 @@ namespace command_line {
 #include <gmpxx.h>
 #include "cmdline/args.hpp"
 #include "pinch/dealer_information.hpp"
+#include "random/xorshift.hpp"
 
 namespace command_line {
     bool generate_share_database = false;
@@ -47,6 +54,10 @@ namespace command_line {
             if( arg == "--generator" ) {
                 args.range( 1 ) >> generator;
                 generate_share_database = true;
+                continue;
+            }
+            if( arg == "--add" ) {
+                added_users.push_back( args.next() );
                 continue;
             }
             if( arg == "--help" ) {
@@ -77,6 +88,7 @@ namespace command_line {
 
 int main( int argc, char ** argv ) {
     command_line::parse( cmdline::args( argc, argv ) );
+    rng::xorshift rng;
 
     // Set up database and the file
     pinch::dealer_information<mpz_class> database;
@@ -90,6 +102,12 @@ int main( int argc, char ** argv ) {
         // Database exists.
         file.open( command_line::share_database, std::ios::in | std::ios::out );
         file >> database;
+    }
+
+    // Add all the needed users
+    for( std::string share_filename : command_line::added_users ) {
+        std::ofstream share( share_filename );
+        share << database.new_share( rng ) << '\n';
     }
 
     // Write database back to the file

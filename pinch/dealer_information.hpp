@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <vector>
+#include "random/gmp_adapter.hpp"
 #include "pinch/shares.hpp"
 
 namespace pinch {
@@ -23,6 +24,12 @@ namespace pinch {
         int last_id = 0;
         T prime;
         T generator;
+
+        /* Generates a new share for the list.
+         */
+        template< typename RNG >
+        share<T> new_share( RNG & );
+
     };
 
     template< typename T >
@@ -43,5 +50,15 @@ namespace pinch {
         return is;
     }
 
+    template< typename T >
+    template< typename RNG >
+    share<T> dealer_information<T>::new_share( RNG & rng ) {
+        // TODO: Make this GMP-independent
+        int bits = mpz_sizeinbase( prime.get_mpz_t(), 2 );
+        auto number = rng::gmp_generate( rng, bits );
+        share<T> new_share{++last_id, T(number % prime)};
+        valid_shares.push_back( new_share );
+        return new_share;
+    }
 }
 #endif // PINCH_DEALER_INFORMATION_HPP
