@@ -13,7 +13,10 @@
 
 #include <iostream>
 #include <vector>
+#include "math/primitive_root.hpp"
+#include "math/set.hpp"
 #include "random/gmp_adapter.hpp"
+#include "pinch/noticeboard.hpp"
 #include "pinch/shares.hpp"
 
 namespace pinch {
@@ -38,6 +41,16 @@ namespace pinch {
          * Returns true if something was removed, and false otherwise.
          */
         bool remove_share( int id );
+
+        /* Generate a noticeboard for the given secret and the given threshold.
+         * That is, every group with at least threshold members
+         * will be able to reconstruct the given secret
+         * using the information in the noticeboard.
+         *
+         * The RNG will be used to create the generators.
+         */
+        template< typename RNG >
+        noticeboard<T> generate_noticeboard( T secret, int threshold, RNG & rng ) const;
 
     };
 
@@ -79,5 +92,42 @@ namespace pinch {
             }
         return false;
     }
+
+    template< typename T >
+    template< typename RNG >
+    noticeboard<T> dealer_information<T>::generate_noticeboard(
+        T secret,
+        int threshold,
+        RNG & rng
+    ) const {
+        noticeboard<T> board;
+        board.generator = generator;
+        board.prime_modulo = prime;
+
+        std::vector<int> indexes;
+        for( int i = 0; i < valid_shares.size(); i++ )
+            indexes.push_back( i );
+
+        for( auto group_indexes: math::sorted_subsets( indexes, threshold ) ) {
+            group_data<T> data;
+            data.group_generator =
+                math::random_primitive_root_modulo_p( prime, generator, rng );
+
+            T power = 1; // Power that g_X must be raised to compute V_X.
+            for( auto index : group_indexes ) {
+                power *= valid_shares[index].share;
+                data.group.push_back( valid_shares[index].id );
+            }
+
+            T V_X = math::pow_mod( data.group_generator, power, prime );
+            T f_V_X = math::pow_mod( generator, V_X, prime );
+            data.group_value = (secret - f_V_X + prime) % prime;
+
+            board.groups.push_back( data );
+        }
+
+        return board;
+    }
+
 }
 #endif // PINCH_DEALER_INFORMATION_HPP

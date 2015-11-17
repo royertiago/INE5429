@@ -27,6 +27,18 @@ namespace command_line {
 "    To guarantee that the specified user is not able to access the secret,\n"
 "    the noticeboard must be regenerated with another secret.\n"
 "\n"
+"--noticeboard <file>\n"
+"    Chooses the noticeboard file and generate it.\n"
+"    --secret and --threshold must also be set.\n"
+"\n"
+"--secret <N>\n"
+"    Sets the secret to be shared.\n"
+"    See the option --noticeboard.\n"
+"\n"
+"--threshold <N>\n"
+"    Chooses the threshold of the scheme.\n"
+"    See the option --noticeboard.\n"
+"\n"
 "--help\n"
 "    Displays this help and quit.\n"
 ;
@@ -51,6 +63,10 @@ namespace command_line {
     std::vector< std::string > added_users;
     std::vector< int > removed_users;
 
+    std::string noticeboard_file;
+    mpz_class secret;
+    int threshold;
+
     void parse( cmdline::args && args ) {
         while( args.size() > 0 ) {
             std::string arg = args.next();
@@ -72,6 +88,18 @@ namespace command_line {
                 int n;
                 args.range( 1 ) >> n;
                 removed_users.push_back( n );
+                continue;
+            }
+            if( arg == "--noticeboard" ) {
+                noticeboard_file = args.next();
+                continue;
+            }
+            if( arg == "--secret" ) {
+                args.range( 1 ) >> secret;
+                continue;
+            }
+            if( arg == "--threshold" ) {
+                args.range( 1 ) >> threshold;
                 continue;
             }
             if( arg == "--help" ) {
@@ -126,6 +154,15 @@ int main( int argc, char ** argv ) {
     for( int id : command_line::removed_users )
         if( !database.remove_share(id) )
             std::cerr << "Error: user " << id << " not found in the database.\n";
+
+    // Generate the noticeboard
+    if( command_line::noticeboard_file != "" ) {
+        std::ofstream noticeboard_file( command_line::noticeboard_file );
+        pinch::noticeboard<mpz_class> board = database.generate_noticeboard(
+            command_line::secret, command_line::threshold, rng
+        );
+        noticeboard_file << board;
+    }
 
     /* Write database back to the file
      * We must open a new fstream instead of reusing the one used to read the database
