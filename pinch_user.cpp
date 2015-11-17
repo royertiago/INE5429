@@ -122,7 +122,26 @@ int main( int argc, char ** argv ) {
                 << "Return this file back to the starter to finish.\n";
     }
     else if( command_line::random_file == "" ) {
-        std::cout << "Joining share\n";
+        pinch::share<mpz_class> share;
+        pinch::message<mpz_class> message;
+        {
+            std::ifstream share_file( command_line::share );
+            std::ifstream message_file( command_line::message );
+            share_file >> share;
+            message_file >> message;
+        }
+        share.join( message );
+        {
+            std::ofstream message_file( command_line::message );
+            message_file << message;
+        }
+        if( message.remaining_ids.size() > 0 )
+            std::cout << "Joined your share to " << command_line::message << ".\n"
+                << "Send this file to user " << message.remaining_ids[0]
+                << " to continue.\n";
+        else
+            std::cout << "Joined your share to " << command_line::message << ".\n"
+                << "Return this file back to the starter to finish.\n";
     }
     else {
         std::cout << "Finishing reconstruction\n";

@@ -37,6 +37,10 @@ namespace pinch {
             std::vector< int > users,
             RNG & rng
         ) const;
+
+        /* Join this share to the given message.
+         */
+        void join( message<T> & ) const;
     };
 
     template< typename T >
@@ -85,6 +89,21 @@ namespace pinch {
             );
 
         return std::make_pair( msg, nonce_holder );
+    }
+
+    template< typename T >
+    void share<T>::join( message<T> & msg ) const {
+        for( int i = 0; i < msg.remaining_ids.size(); i++ )
+            if( msg.remaining_ids[i] == id ) {
+                msg.partial_message = math::pow_mod(
+                        msg.partial_message,
+                        this->share,
+                        msg.prime_modulo
+                    );
+                msg.remaining_ids.erase( msg.remaining_ids.begin() + i );
+                return;
+            }
+        throw std::out_of_range( "The share of this id is not on the message's group." );
     }
 }
 
