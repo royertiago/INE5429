@@ -1,0 +1,139 @@
+\documentclass[10pt,twocolumn]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\begin{document}
+
+\title{
+    INE5429 --- Segurança em Computação \\[1ex]
+    Protocolo de segredo compartilhado \\
+    que permite a alteração da estrutura de acesso \\[1ex]
+    \makebox{Descrição da implementação}
+}
+\author{Tiago Royer}
+\date{17 de novembro de 2015}
+\maketitle
+
+\begin{abstract}
+    O esquema de Pinch~\cite{Pinch1996}
+    é um protocolo de segredo compartilhado
+    que permite alteração da estrutura de acesso.
+    No trabalho anterior,
+    foi proposta a implementação do esquema de Pinch
+    para uma estrutura de acesso de limiar.
+    Este trabalho descreve os detalhes da implementação
+    e mostra um exemplo de execução dos programas implementados.
+
+Todo o código está disponível em \verb"https://github.com/royertiago/INE5429".
+\end{abstract}
+
+\section{Decisões de projeto}
+
+Esta seção documenta as principais decisões de projeto
+que afetaram a implementação do protocolo.
+
+
+\subsection{Função de via única usada}
+
+Seja $p$ o primo sobre o qual as operações do esquema de Pinch serão realizadas.
+Um grupo $X$ de usuários autorizados pode construir o valor $V_X$ dado por
+\begin{equation*}
+    V_X = g_X^{\prod_{P_i \in X} s_i},
+\end{equation*}
+em que $s_i$ são as quotas de cada usuário
+e $g_X$ é um gerador de $\mathbb Z_p^*$, escolhido aleatoriamente
+e fixado no quadro de avisos.
+
+O valor $T_X$,
+que será publicado no quadro de avisos e permitirá a recuperação da chave,
+é dado por
+\begin{equation*}
+    T_X = S - f(V_X).
+\end{equation*}
+$S$ é o segredo.
+
+Todas essas operações são feitas no conjunto $\mathbb Z_p$,
+portanto, a função de via única $f$ também precisa operar neste conjunto.
+Como sabemos que resolver instâncias do logaritmo discreto é,
+em geral, difícil,
+optei por escolher $f$ como uma função de exponenciação modular em $\mathbb Z_p$.
+É fixado um gerador $g$ para o conjunto $\mathbb Z_p^*$,
+que será armazenado junto do quadro de avisos;
+então, $f$ é definida por
+\begin{equation*}
+    f(n) = g^n \pmod p.
+\end{equation*}
+
+\subsection{Classes implementadas}
+
+Seis classes foram implementadas para o trabalho.
+O arquivo \verb"pinch/shares.hpp" contém a classe \verb"share",
+o arquivo \verb"pinch/dealer_information.hpp" contém a classe \verb"dealer_information",
+o arquivo \verb"pinch/user_data.hpp" contém a classe \verb"message"
+e a clase \verb"private_nonce"
+e o arquivo \verb"pinch/noticeboard.hpp" contém a classe \verb"group_data"
+e \verb"noticeboard".
+
+Apenas a classe \verb"group_data" não é armazenada separadamente num arquivo;
+todas as demais podem ser serializadas individualmente.
+Para facilitar a visualização do protocolo,
+todos os arquivos contém os números serializados em formato texto,
+ao invés de usar binário.
+
+\begin{itemize}
+    \item \verb"share":
+        Armazena a quota de um usuário.
+        Para facilitar a troca de mensagens,
+        esta classe armazena não apenas a quota,
+        mas também o ID deste usuário.
+
+        Esta classe é responsável por atualizar a mensagem
+        com a informação de sua quota.
+
+    \item \verb"dealer_information":
+        Contém toda a informação necessária para o dealer atualizar o quadro de avisos.
+        É responsável por gerar o quadro de avisos
+        e adicionar e remover quotas.
+
+    \item \verb"message":
+        Armazena as informações intermediárias necessárias
+        para reconstruir o valor $V_X$.
+        É gerada pela classe \verb"share".
+        Para garantir desacoplamento do quadro de avisos,
+        o primo $p$ (usado como módulo)
+        e o gerador $g$ (da função $f$)
+        também são armazenados na mensagem.
+        Para guiar a reconstrução,
+        esta classe também contém uma lista de todos os usuários
+        que faltam contribuir com sua quota.
+
+    \item \verb"private_nonce":
+        Contém a inversa modular
+        do número aleatório gerado pelo usuário que iniciou a reconstrução.
+        (Este número aleatório é usado para proteger a quota
+        do primeiro usuário.)
+        Esta é a última peça do quebra-cabeça após todas as quotas terem sido unidas;
+        portanto, esta é a classe responsável por finalizar a reconstrução do segredo.
+        
+    \item \verb"group_data":
+        Esta é uma classe interna do quadro de avisos
+        que representa o par $(g_X, T_X)$ para cada grupo $X$.
+        Também contém a lista dos IDs dos membros do grupo $X$.
+
+    \item \verb"noticeboard":
+        Representa o quadro de avisos.
+        Armazena o gerador $g$ (para a função $f$),
+        o primo $p$,
+        e uma lista de \verb"group_data",
+        contendo todos os conjuntos do quadro de avisos.
+\end{itemize}
+
+\bibliographystyle{plain}
+\bibliography{bibliografia}
+
+\end{document}
