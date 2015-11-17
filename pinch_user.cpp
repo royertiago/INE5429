@@ -144,7 +144,15 @@ int main( int argc, char ** argv ) {
                 << "Return this file back to the starter to finish.\n";
     }
     else {
-        std::cout << "Finishing reconstruction\n";
+        pinch::message<mpz_class> message;
+        pinch::private_nonce<mpz_class> nonce;
+        {
+            std::ifstream message_file( command_line::message );
+            std::ifstream nonce_file( command_line::random_file );
+            message_file >> message;
+            nonce_file >> nonce;
+        }
+        std::cout << "Secret: " << nonce.reconstruct( message ) << '\n';
     }
 
     return 0;

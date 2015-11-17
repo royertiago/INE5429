@@ -9,8 +9,10 @@
  * then, the list of remaining ids is written in the other line.
  */
 
+#include <stdexcept>
 #include <vector>
 #include <iostream>
+#include "math/algo.hpp"
 
 namespace pinch {
 
@@ -27,7 +29,21 @@ namespace pinch {
     template< typename T >
     struct private_nonce {
         T nonce_inverse;
+
+        /* Reconstruct the secret using a complete message.
+         */
+        T reconstruct( const message<T> & ) const;
     };
+
+    template< typename T >
+    T private_nonce<T>::reconstruct( const message<T> & msg ) const {
+        if( msg.remaining_ids.size() != 0 )
+            throw std::invalid_argument( "The message must be final." );
+
+        T V_X = math::pow_mod( msg.partial_message, nonce_inverse, msg.prime_modulo );
+        T f_V_X = math::pow_mod( msg.generator, V_X, msg.prime_modulo );
+        return (msg.group_data + f_V_X) % msg.prime_modulo;
+    }
 
     template< typename T >
     std::ostream & operator<<( std::ostream & os, const message<T> & m ) {
