@@ -42,6 +42,8 @@ namespace command_line {
 #include <string>
 #include <gmpxx.h>
 #include "cmdline/args.hpp"
+#include "pinch/shares.hpp"
+#include "pinch/noticeboard.hpp"
 #include "random/xorshift.hpp"
 
 namespace command_line {
@@ -96,7 +98,28 @@ int main( int argc, char ** argv ) {
     rng::xorshift rng;
 
     if( command_line::noticeboard != "" ) {
-        std::cout << "Starting reconstruction\n";
+        pinch::noticeboard<mpz_class> board;
+        pinch::share<mpz_class> share;
+        {
+            std::ifstream noticeboard_file( command_line::noticeboard );
+            std::ifstream share_file( command_line::share );
+            noticeboard_file >> board;
+            share_file >> share;
+        }
+        auto pair = share.start_reconstruction( board, command_line::users, rng );
+        {
+            std::ofstream message_file( command_line::message );
+            std::ofstream random_file( command_line::random_file );
+            message_file << pair.first;
+            random_file << pair.second;
+        }
+        if( pair.first.remaining_ids.size() > 0 )
+            std::cout << "Generated " << command_line::message << ".\n"
+                << "Send this file to user " << pair.first.remaining_ids[0]
+                << " to continue.\n";
+        else
+            std::cout << "Generated " << command_line::message << ".\n"
+                << "Return this file back to the starter to finish.\n";
     }
     else if( command_line::random_file == "" ) {
         std::cout << "Joining share\n";
