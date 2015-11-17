@@ -27,6 +27,7 @@
  */
 
 #include <iostream>
+#include <stdexcept>
 #include <vector>
 
 namespace pinch {
@@ -41,7 +42,18 @@ namespace pinch {
     struct noticeboard {
         T generator, prime_modulo; // Parameters for the function f
         std::vector< group_data<T> > groups;
+
+        // Retrieves the group_data corresponding to the given group.
+        group_data<T> retrieve_data( std::vector<int> group ) const;
     };
+
+    template< typename T >
+    group_data<T> noticeboard<T>::retrieve_data( std::vector<int> group ) const {
+        for( int i = 0; i < groups.size(); i++ )
+            if( groups[i].group == group )
+                return groups[i];
+        throw std::out_of_range( "Specified group not in the noticeboard." );
+    }
 
     template< typename T >
     std::istream & operator>>( std::istream & is, group_data<T> & data ) {

@@ -58,3 +58,20 @@ TEST_CASE( "noticeboard input and output", "[pinch]" ) {
     stream << board;
     CHECK( stream.str() == "2 19\n25 36 2 1 2\n78 89 2 1 3\n" );
 }
+
+TEST_CASE( "noticeboard retrieval", "[pinch]" ) {
+    pinch::noticeboard<int> board;
+    std::stringstream stream;
+
+    stream.str( "2 19\n25 36 2 1 2\n78 89 2 1 3\n" );
+    stream >> board;
+
+    pinch::group_data<int> data;
+    REQUIRE_NOTHROW( data = board.retrieve_data( {1, 2} ) );
+    CHECK( data.group_generator == 25 );
+
+    REQUIRE_NOTHROW( data = board.retrieve_data( {1, 3} ) );
+    CHECK( data.group_generator == 78 );
+
+    REQUIRE_THROWS_AS( data = board.retrieve_data( {2, 3} ), std::out_of_range );
+}
