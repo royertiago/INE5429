@@ -133,6 +133,196 @@ ao invés de usar binário.
         contendo todos os conjuntos do quadro de avisos.
 \end{itemize}
 
+\section{Exemplo de execução}
+
+Nesta seção,
+será repetido o exemplo de execução do trabalho anterior,
+mas agora discutindo as estruturas geradas.
+
+\subsection{Construção dos dados do dealer}
+
+O dealer possuirá um banco de dados com as informações dos usuários
+--- a saber, o ID e a quota de cada um.
+
+\begin{verbatim}
+$ pinch_dealer shares.data --prime 691 \
+  --generator 3
+$ pinch_dealer shares.data --add share1.data
+$ pinch_dealer shares.data --add share2.data
+$ pinch_dealer shares.data --add share3.data
+$ pinch_dealer shares.data --add share4.data
+$ pinch_dealer shares.data --add share5.data
+\end{verbatim}
+Estes comandos criam o arquivo \verb"shares.data"
+(que contém todos os dados que o dealer precisa para gerenciar o segredo),
+\verb"share1.data" (a quota do usuário com ID $1$),
+\verb"share2.data" (a quota do usuário com ID $2$),
+$\ldots$,
+e \verb"share5.data" (a quota do usuário com ID $5$).
+
+Neste exemplo de execução, o arquivo \verb"shares.data" contém
+\begin{verbatim}
+5 691 3
+1 546
+2 237
+3 91
+4 651
+5 651
+\end{verbatim}
+Os três primeiros valores são o último ID,
+o primo $p$ e o gerador $g$.
+Então, cada linha contém uma quota;
+por exemplo, a quota do usuário com ID $1$ é $546$.
+Cada um dos arquivos \verb$share$$i$\verb$.data$
+contém o par $(ID, quota)$ para cada usuário;
+por exemplo,
+\verb"share1.data" contém
+\begin{verbatim}
+1 546
+\end{verbatim}
+
+O arquivo \verb"shares.data" deve ser mantido privado pelo dealer;
+os arquivos \verb"share"$i$\verb".data" devem ser enviados para os respectivos usuários
+através de um canal seguro de comunicação.
+(Uma implementação mais rebuscada poderia usar o protocolo Diffie-Hellman
+para estabelecer os valores das quotas de cada usuário;
+escolhi fazer assim para simplificar a execução.)
+
+\subsection{Geração do quadro de avisos}
+
+\begin{verbatim}
+$ pinch_dealer shares.data --threshold 3 \
+  --secret 189 --noticeboard noticeboard.data
+\end{verbatim}
+Este comando armazena no arquivo \verb"noticeboard.data" o quadro de avisos.
+Este quadro ocultará o segredo $189$,
+e exigirá três usuários para reconstruir o segredo.
+
+Neste exemplo, o arquivo \verb"noticeboard.data" contém
+\begin{verbatim}
+3 691
+126 95 3 1 2 3
+251 108 3 1 2 4
+296 616 3 1 2 5
+461 147 3 1 3 4
+461 147 3 1 3 5
+472 222 3 1 4 5
+186 547 3 2 3 4
+296 216 3 2 3 5
+92 2 3 2 4 5
+17 245 3 3 4 5
+\end{verbatim}
+Na primeira linha, temos o gerador $g$ e o primo $p$.
+Cada uma das linhas subsequentes representa um conjunto $X$;
+por exemplo, a segunda linha,
+\begin{verbatim}
+126 95 3 1 2 3
+\end{verbatim}
+contém, em sequência, os valore $T_X$, $g_X$ e $|X|$,
+seguidos dos IDs dos usuários do conjunto $X$.
+Estritamente falando,
+não é necessário armazenar $|X$ nem os IDs dos usuários do conjunto $X$,
+mas isso facilita o controle sobre a ordem do protocolo.
+
+O quadro de avisos pode ser publicado livremente em algum lugar com alta disponibilidade
+ou mandado para cada usuário (usando um canal inseguro mesmo).
+
+\subsection{Reconstrução do segredo}
+
+\subsubsection{Início da reconstrução}
+
+\begin{verbatim}
+$ pinch_user share1.data --reconstruct \
+  noticeboard.data message.data r.data \
+  2 5
+Generated message.data.
+Send this file to user 2 to continue.
+\end{verbatim}
+Este comando inicia o processo de reconstrução.
+\verb"noticeboard.data" é o quadro de avisos,
+que é apenas lido neste comando.
+\verb"message.data" armazena quase todas as informações necessárias para a reconstrução
+--- a única parte que falta é o \emph{nonce} gerado pelo primeiro usuário,
+que é armazenado no arquivo \verb"r.data".
+
+Nesse exemplo,
+\verb"message.data" contém
+\begin{verbatim}
+616 641 691 3
+2 5
+\end{verbatim}
+e \verb"r.data" contém
+\begin{verbatim}
+133
+\end{verbatim}
+Os dois primeiros valores de \verb"message.data" são
+$T_X$ e $g_X^{r s_1}$.
+Estes valores são efetivamente parte exclusiva da mensagem.
+Os dois seguintes são $p$ e $g$;
+embora estes valores possam ser resgatados do quadro de avisos,
+trazê-los junto na mensagem faz com que todo o processo de reconstrução do segredo
+seja, agora, independente do arquivo \verb"noticeboard.data".
+
+A última linha contém os IDs dos usuários que ainda não contribuiram com sua quota.
+
+\verb"r.data" contém a inversa modular de $r$.
+Este arquivo deve ser mantido privado pelo usuário $1$;
+o arquivo \verb"message.data" pode ser enviado usando um canal inseguro
+para os demais usuários.
+
+\subsubsection{Juntando os demais pedaços}
+
+\begin{verbatim}
+$ pinch_user share2.data --join message.data
+Joined your share to message.data.
+Send this file to user 5 to continue.
+\end{verbatim}
+Assim, o usuário $2$ contribuiu com sua quota para a reconstrução.
+O conteúdo de \verb"message.data" é
+\begin{verbatim}
+616 165 691 3
+5
+\end{verbatim}
+
+\begin{verbatim}
+$ pinch_user share5.data --join message.data
+Joined your share to message.data.
+Return this file back to the starter to finish.
+\end{verbatim}
+
+O conteúdo de \verb"message.data" é
+\begin{verbatim}
+616 389 691 3
+
+\end{verbatim}
+Observe que a última linha está vazia.
+
+\subsubsection{Reconstrução final}
+
+\begin{verbatim}
+$ pinch_user --finish-reconstruction \
+  message.data r.data
+Secret: 189
+\end{verbatim}
+
+O usuário $1$, que detinha \verb"r.data", pôde agora reconstruir o segredo.
+
+\subsubsection{Alteração na estrutura de acesso}
+
+\begin{verbatim}
+$ pinch_dealer shares.data --add share6.data
+$ pinch_dealer shares.data --remove 2
+$ pinch_dealer shares.data --threshold 3 \
+  --secret 196 --noticeboard noticeboard.data
+\end{verbatim}
+
+Estes comandos adicionam mais um usuário (o usuário $6$)
+e removem o usuário $2$ do arquivo \verb"shares.data".
+Assim,
+quando o dealer reconstruir o quadro de avisos,
+nenhum grupo $X$ conterá o usuário $2$,
+portanto ele não poderá participar de uma reconstrução do segredo.
+
 \bibliographystyle{plain}
 \bibliography{bibliografia}
 
