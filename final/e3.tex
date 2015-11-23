@@ -1,0 +1,292 @@
+\documentclass[10pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\begin{document}
+
+\title{
+    INE5429 --- Segurança em Computação \\[1ex]
+    Protocolo de segredo compartilhado \\
+    que permite a alteração da estrutura de acesso \\[1ex]
+    \makebox{Código produzido}
+}
+\author{Tiago Royer}
+\date{23 de novembro de 2015}
+\maketitle
+
+\begin{abstract}
+    O esquema de Pinch~\cite{Pinch1996}
+    é um protocolo de segredo compartilhado
+    que permite alteração da estrutura de acesso.
+    No trabalho anterior,
+    foi proposta a implementação do esquema de Pinch
+    para uma estrutura de acesso de limiar.
+    Como o trabalho anterior já descrevia a implementação por completo,
+    este texto contém apenas o código-fonte escrito.
+
+    Todo o código está disponível em \verb"https://github.com/royertiago/INE5429".
+\end{abstract}
+
+Entrada e saída e a interface com o usuário foram omitidas.
+
+As classes \verb"dealer_information" e \verb"share"
+dependem das classes \verb"noticeboard" e \verb"message",
+portanto serão apresentadas por último.
+
+\section{Quadro de avisos}
+
+Código essencial de \verb"pinch/noticeboard.hpp".
+Objetos da classe \verb"noticeboard" são os que constituem o arquivo
+\verb"noticeboard.data".
+
+\begin{verbatim}
+template< typename T >
+struct group_data {
+    T group_generator;
+    T group_value;
+    std::vector<int> group;
+};
+
+template< typename T >
+struct noticeboard {
+    T generator, prime_modulo; // Parameters for the function f
+    std::vector< group_data<T> > groups;
+
+    // Retrieves the group_data corresponding to the given group.
+    group_data<T> retrieve_data( std::vector<int> group ) const;
+};
+
+template< typename T >
+group_data<T> noticeboard<T>::retrieve_data( std::vector<int> group ) const {
+    for( int i = 0; i < groups.size(); i++ )
+        if( groups[i].group == group )
+            return groups[i];
+    throw std::out_of_range( "Specified group not in the noticeboard." );
+}
+\end{verbatim}
+
+\section{Mensagens trocadas}
+
+Código de \verb"pinch/user_data.hpp".
+A classe \verb"message" é a que vira o arquivo \verb"message.data",
+e a classe \verb"private_nonce" vira \verb"r.data".
+
+\begin{verbatim}
+template< typename T >
+struct message {
+    std::vector<int> remaining_ids;
+    T group_data;
+    T partial_message;
+    T prime_modulo;
+
+    T generator; // Generator to the one-way function
+};
+
+template< typename T >
+struct private_nonce {
+    T nonce_inverse;
+
+    /* Reconstruct the secret using a complete message.
+     */
+    T reconstruct( const message<T> & ) const;
+};
+
+template< typename T >
+T private_nonce<T>::reconstruct( const message<T> & msg ) const {
+    if( msg.remaining_ids.size() != 0 )
+        throw std::invalid_argument( "The message must be final." );
+
+    T V_X = math::pow_mod( msg.partial_message, nonce_inverse, msg.prime_modulo );
+    T f_V_X = math::pow_mod( msg.generator, V_X, msg.prime_modulo );
+    return (msg.group_data + f_V_X) % msg.prime_modulo;
+}
+\end{verbatim}
+
+\section{Quota}
+
+Código de \verb"pinch/shares.hpp".
+A classe \verb"share" constitui cada um dos arquivos \verb"share"$i$\verb".data".
+
+\begin{verbatim}
+template< typename T >
+struct share {
+    int id;
+    T share;
+
+    /* Start the reconstruction of the shares,
+     * using the given RNG to generate the secret nonce.
+     *
+     * The user list must not include this ID.
+     */
+    template< typename RNG >
+    std::pair< message<T>, private_nonce<T> > start_reconstruction(
+        const noticeboard<T> & board,
+        std::vector< int > users,
+        RNG & rng
+    ) const;
+
+    /* Join this share to the given message.
+     */
+    void join( message<T> & ) const;
+};
+
+template< typename T >
+template< typename RNG >
+std::pair< message<T>, private_nonce<T> > share<T>::start_reconstruction(
+    const noticeboard<T> & board,
+    std::vector< int > users,
+    RNG & rng
+) const {
+    message<T> msg;
+    private_nonce<T> nonce_holder;
+    // First, generate the random nonce.
+    T phi = board.prime_modulo - 1;
+    int bits = mpz_sizeinbase( phi.get_mpz_t(), 2 );
+    T nonce = rng::gmp_generate( rng, bits );
+    while( math::gcd( nonce, phi ) != 1 )
+        nonce = rng::gmp_generate( rng, bits );
+
+    nonce_holder.nonce_inverse = math::modular_inverse( nonce, phi );
+
+    // Next, retrieve the public information about the user list.
+    msg.remaining_ids = users;
+    users.push_back( id );
+    std::sort( users.begin(), users.end() );
+    group_data<T> data = board.retrieve_data( users );
+
+    msg.group_data = data.group_value;
+    msg.prime_modulo = board.prime_modulo;
+    msg.generator = board.generator;
+
+    // And now, give our contribution to the partial share.
+    msg.partial_message = math::pow_mod(
+            data.group_generator,
+            T( nonce * this->share ),
+            msg.prime_modulo
+        );
+
+    return std::make_pair( msg, nonce_holder );
+}
+
+template< typename T >
+void share<T>::join( message<T> & msg ) const {
+    for( int i = 0; i < msg.remaining_ids.size(); i++ )
+        if( msg.remaining_ids[i] == id ) {
+            msg.partial_message = math::pow_mod(
+                    msg.partial_message,
+                    this->share,
+                    msg.prime_modulo
+                );
+            msg.remaining_ids.erase( msg.remaining_ids.begin() + i );
+            return;
+        }
+    throw std::out_of_range( "The share of this id is not on the message's group." );
+}
+\end{verbatim}
+
+\section{Informações do dealer}
+
+Código de \verb"pinch/dealer_information.hpp".
+Esta classe compõe o arquivo \verb"shares.data".
+
+\begin{verbatim}
+template< typename T >
+struct dealer_information {
+    std::vector< share<T> > valid_shares;
+    int last_id = 0;
+    T prime;
+    T generator;
+
+    /* Generates a new share for the list.
+     */
+    template< typename RNG >
+    share<T> new_share( RNG & );
+
+    /* Remove the share with the specified identifier.
+     * To ensure that the specified user is not able to access the secret,
+     * the noticeboard must be regenerated with another secret
+     * after running this function.
+     *
+     * Returns true if something was removed, and false otherwise.
+     */
+    bool remove_share( int id );
+
+    /* Generate a noticeboard for the given secret and the given threshold.
+     * That is, every group with at least threshold members
+     * will be able to reconstruct the given secret
+     * using the information in the noticeboard.
+     *
+     * The RNG will be used to create the generators.
+     */
+    template< typename RNG >
+    noticeboard<T> generate_noticeboard( T secret, int threshold, RNG & rng ) const;
+
+};
+
+template< typename T >
+template< typename RNG >
+share<T> dealer_information<T>::new_share( RNG & rng ) {
+    // TODO: Make this GMP-independent
+    int bits = mpz_sizeinbase( prime.get_mpz_t(), 2 );
+    auto number = rng::gmp_generate( rng, bits );
+    share<T> new_share{++last_id, T(number % prime)};
+    valid_shares.push_back( new_share );
+    return new_share;
+}
+
+template< typename T >
+bool dealer_information<T>::remove_share( int id ) {
+    for( int i = 0; i < valid_shares.size(); i++ )
+        if( valid_shares[i].id == id ) {
+            valid_shares.erase( valid_shares.begin() + i );
+            return true;
+        }
+    return false;
+}
+
+template< typename T >
+template< typename RNG >
+noticeboard<T> dealer_information<T>::generate_noticeboard(
+    T secret,
+    int threshold,
+    RNG & rng
+) const {
+    noticeboard<T> board;
+    board.generator = generator;
+    board.prime_modulo = prime;
+
+    std::vector<int> indexes;
+    for( int i = 0; i < valid_shares.size(); i++ )
+        indexes.push_back( i );
+
+    for( auto group_indexes: math::sorted_subsets( indexes, threshold ) ) {
+        group_data<T> data;
+        data.group_generator =
+            math::random_primitive_root_modulo_p( prime, generator, rng );
+
+        T power = 1; // Power that g_X must be raised to compute V_X.
+        for( auto index : group_indexes ) {
+            power *= valid_shares[index].share;
+            data.group.push_back( valid_shares[index].id );
+        }
+
+        T V_X = math::pow_mod( data.group_generator, power, prime );
+        T f_V_X = math::pow_mod( generator, V_X, prime );
+        data.group_value = (secret - f_V_X + prime) % prime;
+
+        board.groups.push_back( data );
+    }
+
+    return board;
+}
+\end{verbatim}
+
+\bibliographystyle{plain}
+\bibliography{bibliografia}
+
+\end{document}
