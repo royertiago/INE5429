@@ -1,0 +1,100 @@
+% Slides que apareceram no vídeo da disciplina.
+\documentclass{beamer}
+\usetheme[compress]{Singapore}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+
+\usepackage{tikz}
+
+\begin{document}
+
+\begin{frame}
+    Exemplo: segredo compartilhado na União Soviética
+\end{frame}
+
+\begin{frame}
+    \frametitle{Esquema de Shamir: esquema de limiar $(2, 3)$}
+    \centering
+    \begin{tikzpicture}
+        \draw[->] (-1, 0) -- (5, 0);
+        \draw[->] (0, -1) -- (0, 5);
+        \foreach \x in {1, 2, 3, 4} {
+            \draw (\x, 0.1) -- (\x, -0.1);
+            \draw (0.1, \x) -- (-0.1, \x);
+        }
+
+        \onslide<2-> \draw[thick] (-1, 5) -- (5, -1);
+        \onslide<1-> \fill[red] (0, 4) circle [radius=0.1cm];
+
+        \onslide<3-> \fill[green] (1, 3) circle [radius=0.075cm];
+        \onslide<3-> \fill[green] (2, 2) circle [radius=0.075cm];
+        \onslide<4-> \fill[green] (3, 1) circle [radius=0.075cm];
+    \end{tikzpicture}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Esquema de Shamir: esquema de limiar $(t, n)$}
+
+    Escolha um polinômio $p(x) = a_0 + a_1 x^1 + \cdots + a_{t-1}x^{t-1}$
+
+    Fatias: $(i, p(i)), i = 1, \ldots, n$
+
+    Segredo: $p(0) = a_0$
+\end{frame}
+
+\begin{frame}
+    \frametitle{Esquema de Cachin-Pinch}
+
+    Seja $\mathcal P = \{p_1, \dots, p_n\}$ o conjunto de participantes,
+
+    $p$ um primo grande e $f: \mathbb Z_p^* \to \mathbb Z_p^*$ uma função de via única.
+
+    \onslide<2-> Escolha um segredo $S \in \mathbb Z_p^*$
+    e combine, com cada participante $p_i$,
+    uma fatia $s_i \in \mathbb Z_p^*$.
+
+    \onslide<3-> Para cada conjunto $X \subseteq \mathcal P$
+    de participantes autorizados,
+    escolha um gerador $g_X$ para $\mathbb Z_p^*$
+    e calcule
+    \begin{align*}
+        V_X &= g_X^{\prod_{P_i \in X} s_i} \\
+        T_X &= S - f( V_X )
+    \end{align*}
+    e disponibilize o par $(g_X, T_X)$ no quadro de avisos.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Reconstrução do segredo}
+    Suponha $X = \{p_1, p_2, \ldots, p_t\}$.
+    \begin{enumerate}
+        \item<2-> $p_1$ escolhe um número aleatório $\alpha \in \mathbb Z_p^*$
+            e manda $g_X^{\alpha s_1}$ para $p_2$
+        \item<3-> $p_2$ recebe $g_X^{\alpha s_1}$ de $p_1$,
+            calcula $(g_X^{\alpha s_1})^{s_2} = g_X^{\alpha s_1 s_2}$
+            e manda para $p_3$ \\
+            ...
+        \item<4-> $p_t$ recebe $g_X^{\alpha s_1 s_2 \dots s_{t-1}}$,
+            calcula $g_X^{\alpha s_1 \dots s_t}$,
+            e manda de volta para $p_1$
+        \item<5-> $p_1$ calcula
+            \begin{equation*}
+                V_X = (g_X^{\alpha s_1 \dots s_t})^{\alpha^{-1}},
+            \end{equation*}
+            resgata $T_X$ do quadro de avisos e,
+            em nome do grupo,
+            reconstroi $S = T_X + f(V_X)$.
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}
+
+    \texttt{github.com/royertiago/INE5429}
+
+    \texttt{github.com/royertiago/INE5429/blob/master/final/e2.tex}
+
+\end{frame}
+
+\end{document}
