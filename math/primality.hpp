@@ -16,9 +16,18 @@ namespace primality {
  * the found Fermat witness to the compositeness of the number will be stored there.
  * Otherwise, the number is left untouched.
  *
- * Note that even if the number of trials is enormous,
- * there are some non-prime numbers (the Charmicael numbers)
- * that will pass the Fermat test.
+ * Note that there are some numbers (the Charmicael numbers)
+ * that pass the Fermat primality test for every coprime witness candidate.
+ * Even though they might be exposed through the Fermat primality test,
+ * this can only happen for witnesses that are not coprime with the number,
+ * thus rendering Fermat's primality test as slow as trial division.
+ * Examples of Charmichael numbers, for documentation purposes:
+ *           561 =    3 *    11 *    17
+ *          1105 =    5 *    13 *    17
+ *          1729 =    7 *    13 *    19
+ *       3828001 =  101 *   151 *   251
+ *     413138881 =  617 *   661 *  1013
+ * 2199733160881 = 6037 * 12073 * 30181
  */
 template< typename RNG >
 bool fermat( mpz_class number, RNG& rng, int trials, mpz_class * witness = nullptr );
