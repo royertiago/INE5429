@@ -15,10 +15,13 @@ int main( int argc, char ** argv ) {
     sscanf( argv[2], "%d", &trials );
 
     rng::xorshift rng;
-    if( math::primality::fermat( number, rng, trials ) )
+    mpz_class witness;
+
+    if( math::primality::fermat( number, rng, trials, &witness ) )
         std::cout << "Number " << number << " passed all " << trials << " trials.\n";
     else
-        std::cout << "Number " << number << " failed Fermat test.\n";
+        std::cout << "Number " << number << " failed Fermat test.\n"
+            << "Witness: " << witness << "\n";
 
     return 0;
 }
